@@ -1,0 +1,10 @@
+{
+  "reponame": "chaseid",
+  "productname": "Chaseid",
+  "productdomain": "chaseid.app",
+  "subdomain": "nexo-7be",
+  "orunWorkspace": "ws_G4TNSD0A",
+  "githuborg": "pullely",
+  "epicSlug": "infra-baselining",
+  "domain": false
+}
