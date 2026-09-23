@@ -10,6 +10,9 @@ export interface Env {
   BILLING_WORKER?: Fetcher;
   NOTIFICATIONS_WORKER?: Fetcher;
   INTEGRATIONS_WORKER?: Fetcher;
+  // chaseid CH1: the product's own worker — the client register, the
+  // Companies House sync and the verification chase.
+  CHASE_WORKER?: Fetcher;
   // Optional KV binding backing the Stripe-style idempotency replay store
   // (Task 0095). Absent on `dev` (no live worker) and absent on the older
   // verify-only stages. When unbound, `replayOrExecute` degrades to a

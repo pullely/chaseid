@@ -15,6 +15,9 @@ export const BOUNDED_CONTEXTS = [
   "notifications",
   "support",
   "integrations",
+  // chaseid CH1: the client register and its verification chase — the one
+  // bounded context this product adds to the cirrus baseline.
+  "chase",
 ] as const;
 
 export type BoundedContext = (typeof BOUNDED_CONTEXTS)[number];

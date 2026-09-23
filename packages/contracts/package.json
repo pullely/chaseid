@@ -21,6 +21,7 @@
     "./webhooks": "./src/webhooks.ts",
     "./metering": "./src/metering.ts",
     "./billing": "./src/billing.ts",
+    "./chase": "./src/chase.ts",
     "./notifications": "./src/notifications.ts",
     "./integrations": "./src/integrations.ts",
     "./idempotency": "./src/idempotency.ts"

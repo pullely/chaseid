@@ -5,7 +5,7 @@ request, each pull request landed with `orun pr land`. A milestone is marked
 ✅ here when its "done when" list is true, and recorded in
 `IMPLEMENTATION-STATUS.md`.
 
-## CH0 — the spec
+## CH0 — the spec ✅
 
 This doc set, merged to `main` and attached to the epic with `orun spec push`.
 

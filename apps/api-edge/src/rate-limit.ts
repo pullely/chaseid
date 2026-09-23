@@ -57,7 +57,9 @@ export type RouteFamily =
   | "billing"
   | "audit"
   | "notifications"
-  | "integrations";
+  | "integrations"
+  // chaseid CH1: the client register and its verification chase.
+  | "chase";
 
 interface BucketLimits {
   /** Bucket capacity (max tokens). */
@@ -113,6 +115,15 @@ const LIMITS: Record<RouteFamily, FamilyConfig> = {
     org: { limit: 600, windowSec: 60 },
   },
   notifications: {
+    identity: { limit: 60, windowSec: 60 },
+    org: { limit: 300, windowSec: 60 },
+  },
+  chase: {
+    // An import is one request carrying up to 500 companies, and a firm
+    // onboarding its whole book will send several back to back. The identity
+    // bucket is the baseline's; the org bucket is deliberately not larger,
+    // because the cost of an import is paid downstream at Companies House
+    // (CH-F), not here.
     identity: { limit: 60, windowSec: 60 },
     org: { limit: 300, windowSec: 60 },
   },

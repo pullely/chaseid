@@ -28,7 +28,7 @@
       "vars": {
         "ENVIRONMENT": "dev",
         "CONSOLE_CUSTOM_DOMAIN": "",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "durable_objects": {
         "bindings": [
@@ -43,7 +43,7 @@
       "vars": {
         "ENVIRONMENT": "stage",
         "CONSOLE_CUSTOM_DOMAIN": "stage.chaseid.app",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "d1_databases": [
         {
@@ -98,6 +98,10 @@
         {
           "binding": "INTEGRATIONS_WORKER",
           "service": "chaseid-integrations-worker-stage"
+        },
+        {
+          "binding": "CHASE_WORKER",
+          "service": "chaseid-chase-worker-stage"
         }
       ],
       "durable_objects": {
@@ -113,7 +117,7 @@
       "vars": {
         "ENVIRONMENT": "prod",
         "CONSOLE_CUSTOM_DOMAIN": "prod.chaseid.app",
-        "SOLO_MODE": "true"
+        "SOLO_MODE": "false"
       },
       "d1_databases": [
         {
@@ -168,6 +172,10 @@
         {
           "binding": "INTEGRATIONS_WORKER",
           "service": "chaseid-integrations-worker-prod"
+        },
+        {
+          "binding": "CHASE_WORKER",
+          "service": "chaseid-chase-worker-prod"
         }
       ],
       "durable_objects": {

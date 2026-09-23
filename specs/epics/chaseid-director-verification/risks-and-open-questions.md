@@ -37,26 +37,29 @@ shows it, so fixture data can never be mistaken for live data.
 then `prod`), redeploy `chase-worker`, and confirm a manual sync reports
 `provider: "http"`.
 
-## CH-B — R2 is not enabled, so there is no document store (RISK, mitigated by scope)
+## CH-B — the firm report is CSV only (RESOLVED)
 
-The brief asks for the firm report as "CSV/PDF". A rendered PDF has to be
-stored and handed back by URL, and this Cloudflare account answers
-`10042 Please enable R2 through the Cloudflare Dashboard` — R2 has never been
-turned on, so there is nowhere to put one.
+The brief asks for the firm report as "CSV/PDF". This was written up as a
+**RISK** on 2026-09-23 because R2 was not enabled on the Cloudflare account
+(`10042 Please enable R2 through the Cloudflare Dashboard`) and a rendered PDF
+has to be stored somewhere. **That fact changed the same day**: the account
+operator enabled R2, and the portfolio runbook now says so. The risk as
+written no longer exists and is recorded here as resolved rather than quietly
+deleted.
 
-**Mitigation.** The report is CSV only, streamed from
-`GET /v1/organizations/{org}/chase/report/at-risk?format=csv` and generated per
-request. Nothing is stored, so nothing needs a bucket, and a firm that wants a
-PDF prints the CSV from its own spreadsheet. PDF export is not in CH1–CH3 and
-is not a dependency of anything that is.
+**The decision stands anyway, for a better reason.** The report is CSV only,
+streamed from `GET /v1/organizations/{org}/chase/report/at-risk?format=csv`
+and generated per request. Storage was never the interesting part: a PDF needs
+a rendering engine inside a Worker, which is a piece of work in its own right,
+and a stored export is a snapshot that goes stale, has to be retained under the
+firm's own policy, and has to be deleted when a client leaves. A per-request
+CSV has none of those properties and is what a practice actually opens — in the
+spreadsheet it already reconciles its filings in.
 
-**To close it**: enable R2 in the Cloudflare dashboard for the account —
-dash.cloudflare.com → the account → **R2 Object Storage** → **Enable R2**,
-which requires accepting R2's terms and a payment method on the account. Then
-add an `infra/terraform/cloudflare-r2` component beside the existing D1 and KV
-ones, publish a `WIRING_CLOUDFLARE_R2` document, and a later milestone can
-render and store PDFs. Until that dashboard step is done by a human with
-billing access, no amount of code makes this work.
+**If a firm does ask for PDF**, R2 is now there for it: add an
+`infra/terraform/cloudflare-r2` component beside the existing D1 and KV ones,
+publish a `WIRING_CLOUDFLARE_R2` document, and render into it from a later
+milestone. Nothing in CH1–CH3 has to be unbuilt first.
 
 ## CH-C — the verification fields on the public API are three months old (RISK)
 

@@ -57,6 +57,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.manage",
     "organization.integration.token.issue",
     "project.repo_link.write",
+    "chase.read",
+    "chase.write",
   ],
   admin: [
     "organization.read",
@@ -98,6 +100,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "organization.integration.manage",
     "organization.integration.token.issue",
     "project.repo_link.write",
+    "chase.read",
+    "chase.write",
   ],
   builder: [
     "organization.read",
@@ -114,6 +118,8 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.webhook.read",
     "organization.metering.read",
     "organization.integration.read",
+    "chase.read",
+    "chase.write",
   ],
   viewer: [
     "organization.read",
@@ -126,6 +132,7 @@ const ORG_ROLE_PERMISSIONS: Record<OrganizationRole, readonly string[]> = {
     "project.webhook.read",
     "organization.metering.read",
     "organization.integration.read",
+    "chase.read",
   ],
   billing_admin: [
     "organization.read",
@@ -247,6 +254,11 @@ const ALL_KNOWN_ACTIONS: ReadonlySet<string> = new Set([
   "organization.integration.manage",
   "organization.integration.token.issue",
   "project.repo_link.write",
+  // chaseid CH1: the client register and its verification chase. Org-scoped,
+  // not project-scoped — a firm's book is the org's, and CH3 splits the
+  // write permission further when the firm's roles land.
+  "chase.read",
+  "chase.write",
 ]);
 
 function isOrgRole(role: string): role is OrganizationRole {
