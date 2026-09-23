@@ -1,0 +1,27 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-2
+spec:
+  goal: The status board, company counts, at-risk report and chase treat one human on two roles as one person, and never call an unknown person unverified.
+  affects:
+    - default/chaseid/chase-worker
+    - chase-worker
+    - default/chaseid/chase-worker-tests
+    - chase-worker-tests
+    - default/chaseid/contracts
+    - contracts
+    - default/chaseid/sdk
+    - sdk
+    - default/chaseid/web-console-next
+    - web-console-next
+    - default/chaseid/web-console-next-tests
+    - web-console-next-tests
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - presentCompany reports Tay Valley as 2 people (1 unverified, 1 unknown) and Harbourside as 2 people (1 unverified) against the recorded fixtures, asserted in tests/chase-worker
+    - the at-risk report names each human once with unknown people in their own column, and the CSV header is the old six columns followed by unknown_count,unknown_names
+    - two rows of one human with one address produce one notification idempotency key per step; two different addresses produce two
+    - the console shows Overdue for an at-risk filing whose date has passed and Dissolved for a dissolved company
+  gates: []

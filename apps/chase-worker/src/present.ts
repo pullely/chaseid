@@ -6,6 +6,7 @@ import type {
   PublicChaseSyncRun,
 } from "@saas/contracts/chase";
 import { chaseMessagePublicId, companyPublicId, personPublicId, syncRunPublicId } from "./ids.js";
+import { countPeople } from "./people.js";
 import { daysUntilDue, deriveRisk } from "./risk.js";
 
 export function presentCompany(
@@ -13,8 +14,8 @@ export function presentCompany(
   people: ChasePerson[],
   now: Date,
 ): PublicChaseCompany {
-  const live = people.filter((person) => person.resignedOn === null);
-  const unverified = live.filter((person) => person.verificationState !== "verified").length;
+  // Persons, not rows: a director who is also a PSC is one human (CL1).
+  const counts = countPeople(people.filter((person) => person.resignedOn === null));
   const days = daysUntilDue(company.nextStatementDue, now);
   return {
     id: companyPublicId(company.id),
@@ -23,12 +24,15 @@ export function presentCompany(
     companyStatus: company.companyStatus,
     nextStatementDue: company.nextStatementDue,
     daysUntilDue: days,
-    risk: deriveRisk(days, unverified),
+    // Unknown is not unverified, but nobody has shown it is verified either:
+    // both leave the filing unaccounted for.
+    risk: deriveRisk(days, counts.unverifiedCount + counts.unknownCount),
     lastSyncedAt: company.lastSyncedAt,
     lastSyncState: company.lastSyncState,
     lastSyncError: company.lastSyncError,
-    peopleCount: live.length,
-    unverifiedCount: unverified,
+    peopleCount: counts.peopleCount,
+    unverifiedCount: counts.unverifiedCount,
+    unknownCount: counts.unknownCount,
     createdAt: company.createdAt,
   };
 }

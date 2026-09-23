@@ -98,7 +98,9 @@ describe("CH3 through the router, on real SQLite", () => {
     expect(csv.headers.get("content-type")).toMatch(/^text\/csv/);
     expect(csv.headers.get("content-disposition")).toMatch(/^attachment; filename="chaseid-at-risk-\d{4}-\d{2}-\d{2}\.csv"$/);
     const lines = (await csv.text()).trim().split("\r\n");
-    expect(lines[0]).toBe("company_number,company_name,next_statement_due,days_until_due,unverified_count,unverified_names");
+    expect(lines[0]).toBe(
+      "company_number,company_name,next_statement_due,days_until_due,unverified_count,unverified_names,unknown_count,unknown_names",
+    );
     expect(lines.slice(1).map((line) => line.split(",")[0])).toEqual(report.companies.map((c) => c.companyNumber));
 
     // Accept: text/csv selects the same rendering.

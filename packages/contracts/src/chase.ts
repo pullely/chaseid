@@ -25,8 +25,12 @@ export interface PublicChaseCompany {
   lastSyncedAt: string | null;
   lastSyncState: ChaseSyncState;
   lastSyncError: string | null;
+  /** Distinct persons: a human on two roles (director and PSC) is one. */
   peopleCount: number;
+  /** Persons with an unverified role. */
   unverifiedCount: number;
+  /** Persons Companies House said nothing about — never counted as unverified. */
+  unknownCount: number;
   createdAt: string;
 }
 
@@ -148,6 +152,8 @@ export interface ChaseAtRiskCompanyRow {
   daysUntilDue: number | null;
   unverifiedCount: number;
   unverifiedNames: string[];
+  unknownCount: number;
+  unknownNames: string[];
 }
 
 export interface ChaseAtRiskReportResponse {

@@ -8,6 +8,7 @@ import {
   windowCutoff,
   type ChaseDeps,
 } from "@chase-worker/chase";
+import { recipientToken } from "@chase-worker/people";
 
 const DAY = 24 * 60 * 60 * 1000;
 const MONDAY = new Date("2026-09-21T09:00:00.000Z");
@@ -16,7 +17,7 @@ function person(overrides: Partial<ChasePersonWithCompany> = {}): ChasePersonWit
   return {
     id: "0f0e0d0c-0b0a-4908-8706-050403020100",
     orgId: "org-uuid",
-    companyId: "company-uuid",
+    companyId: "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9",
     providerPersonKey: "officer-1",
     kind: "officer",
     name: "Jane Director",
@@ -189,11 +190,13 @@ describe("the chase, day by day", () => {
     ]);
   });
 
-  it("keys every send chase:<prs>:<step>, lower-cases the address and carries no token", async () => {
+  it("keys every send chase:<cmp>:<recipient>:<step>, lower-cases the address and carries no token", async () => {
     const w = world(person());
     await w.sweep();
     const sent = w.enqueued[0]!;
-    expect(sent.idempotencyKey).toBe("chase:prs_0f0e0d0c0b0a49088706050403020100:1");
+    expect(sent.idempotencyKey).toBe(
+      `chase:cmp_1a2b3c4d5e6f40718293a4b5c6d7e8f9:${recipientToken("Jane Director", "jane@example.com")}:1`,
+    );
     expect(sent.recipient.address).toBe("jane@example.com");
     expect(sent.category).toBe("product");
     expect(Object.keys(sent.templateData ?? {}).sort()).toEqual(

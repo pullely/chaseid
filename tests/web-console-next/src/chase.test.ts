@@ -1,8 +1,10 @@
 import {
   formatDaysUntilDue,
+  formatPeopleCounts,
   normaliseCompanyNumber,
   parseRegisterCsv,
   reportFileName,
+  riskBadge,
   RISK_VARIANT,
 } from "@web-console-next/components/chase/chase";
 import { buildNavSections } from "@web-console-next/components/shell/nav-items";
@@ -69,5 +71,24 @@ describe("Chaseid console helpers (CH2)", () => {
 
   it("names the downloaded report after the firm and the day", () => {
     expect(reportFileName("Acme/../x", new Date("2026-09-23T10:00:00Z"))).toBe("chaseid-at-risk-acmex-2026-09-23.csv");
+  });
+});
+
+describe("Chaseid console badges and counts (CL1)", () => {
+  it("reads an at-risk filing whose date has passed as Overdue", () => {
+    expect(riskBadge("at_risk", -5)).toEqual({ label: "Overdue", variant: "destructive" });
+    expect(riskBadge("at_risk", 12)).toEqual({ label: "At risk", variant: "destructive" });
+    expect(riskBadge("due_soon", -1).label).toBe("Due soon");
+  });
+
+  it("shows a dissolved or liquidating company's status instead of a risk", () => {
+    expect(riskBadge("ok", null, "dissolved")).toEqual({ label: "Dissolved", variant: "outline" });
+    expect(riskBadge("at_risk", 3, "liquidation").label).toBe("Liquidation");
+    expect(riskBadge("ok", 120, "active").label).toBe("OK");
+  });
+
+  it("names unknown people apart from unverified ones, and only when there are any", () => {
+    expect(formatPeopleCounts(2, 1, 1).detail).toBe("1 unverified · 1 unknown");
+    expect(formatPeopleCounts(2, 1, 0).detail).toBe("1 unverified");
   });
 });
