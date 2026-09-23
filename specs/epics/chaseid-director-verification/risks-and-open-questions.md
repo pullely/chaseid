@@ -172,3 +172,24 @@ multi-tenant baseline is restored unchanged"), and the chase routes themselves
 are indifferent to it: `isSoloSuppressed` is a deny-list and matches none of
 them. **Revisit** if the console's multi-tenant surfaces turn out to need work
 the baseline has not kept green under the flag.
+
+## CH-J — the baseline's multi-statement writes are Postgres SQL on a D1 stack (RISK)
+
+Found while landing CH2. Three statements in the cirrus baseline's
+`packages/db` are single Postgres data-modifying CTEs with `row_to_json`,
+which SQLite — and therefore D1 — cannot parse (verified against stage D1 with
+`EXPLAIN`): `events.appendEventWithAudit` (every audited write),
+`membership.bootstrapOrganization` (creating an organization) and the
+invitation-acceptance statement in `membership/repository.ts`. Upstream
+`sourceplane/cirrus` `main` carries the same SQL, so every product on this
+baseline is affected; stage and prod had no users or organizations when this
+was found, which is why nothing had surfaced it.
+
+**Done in CH2:** `appendEventWithAudit` rewritten as two portable statements
+and redeployed with `chase-worker`. **Open:** the two membership statements —
+without them no firm can create its organization or accept an invitation —
+and the stale copy of the events statement bundled into every other baseline
+worker until each is redeployed. CH3 ("the firm's roles") takes the
+membership fix and redeploys `membership-worker`. The fix belongs upstream in
+the baseline as well.
+

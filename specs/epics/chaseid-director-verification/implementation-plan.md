@@ -13,7 +13,7 @@ This doc set, merged to `main` and attached to the epic with `orun spec push`.
 - the five documents are on `main`
 - `orun spec list --epic chaseid-director-verification` shows them
 
-## CH1 — the register and the nightly sync
+## CH1 — the register and the nightly sync ✅
 
 The invisible milestone: everything the product is, with no screen on it. A new
 Worker `apps/chase-worker` on the baseline's canonical worker shape
