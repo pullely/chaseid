@@ -5,17 +5,26 @@ metadata:
 spec:
   goal: A firm can import client companies by company number and a nightly cron keeps their officers, PSCs and next confirmation-statement date in sync, with no Companies House API key present.
   affects:
-    - apps/chase-worker
-    - apps/api-edge
-    - packages/db
-    - packages/contracts
-    - packages/policy-engine
-    - tests/chase-worker
-    - tests/db
-    - tests/policy-engine
+    - default/chaseid/api-edge
+    - default/chaseid/chase-worker
+    - default/chaseid/chase-worker-tests
+    - default/chaseid/contracts
+    - default/chaseid/db
+    - default/chaseid/db-migrate
+    - default/chaseid/db-tests
+    - default/chaseid/policy-engine
+    - default/chaseid/policy-engine-tests
+    - api-edge
+    - chase-worker
+    - chase-worker-tests
+    - contracts
+    - db
+    - db-migrate
+    - db-tests
+    - policy-engine
+    - policy-engine-tests
     - specs/epics/chaseid-director-verification
     - tasks
-    - pnpm-lock.yaml
   doneWhen:
     - the four chase_* migrations are registered in packages/db/src/manifest.ts and applied on stage and prod
     - POST /v1/organizations/{org}/chase/companies/import accepts a CSV of company numbers and answers 200 on stage and prod
