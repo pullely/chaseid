@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "@saas/contracts": "workspace:*",
-    "@saas/db": "workspace:*"
+    "@saas/db": "workspace:*",
+    "@saas/notifications-client": "workspace:*"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
@@ -32,6 +33,7 @@
       "^(\\.{1,2}/.*)\\.js$": "$1",
       "^@saas/contracts$": "<rootDir>/../../packages/contracts/src/index.ts",
       "^@saas/contracts/(.*)$": "<rootDir>/../../packages/contracts/src/$1.ts",
+      "^@saas/notifications-client$": "<rootDir>/../../packages/notifications-client/src/index.ts",
       "^@chase-worker/(.*)$": "<rootDir>/../../apps/chase-worker/src/$1.ts",
       "^@saas/db$": "<rootDir>/../../packages/db/src/index.ts",
       "^@saas/db/manifest$": "<rootDir>/../../packages/db/src/manifest.ts",

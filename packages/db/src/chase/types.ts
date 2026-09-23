@@ -176,6 +176,12 @@ export interface ListPeopleParams {
   offset: number;
   verificationState?: VerificationState;
   companyId?: string;
+  /** The DERIVED risk, expressed as the predicate `risk.ts` computes: a
+   *  filing on or before `riskCutoff` with the person not verified is
+   *  `at_risk`, verified is `due_soon`, and everything else is `ok`. Both
+   *  fields or neither. */
+  risk?: "at_risk" | "due_soon" | "ok";
+  riskCutoff?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -208,6 +214,10 @@ export interface ChaseRepository {
     patch: { contactEmail?: string | null; verificationState?: VerificationState; verifiedOn?: string | null },
   ): Promise<ChaseResult<ChasePerson>>;
   advanceChaseStep(personId: string, step: number, chasedAt: string): Promise<ChaseResult<void>>;
+  /** The morning sweep's candidates across every org: unverified, not
+   *  resigned, with an address, not yet escalated, on a company whose
+   *  statement is due on or before `cutoff` (ISO date). Soonest filing first. */
+  listChaseCandidates(cutoff: string, limit: number): Promise<ChaseResult<ChasePersonWithCompany[]>>;
 
   startSyncRun(input: StartSyncRunInput): Promise<ChaseResult<ChaseSyncRun>>;
   finishSyncRun(input: FinishSyncRunInput): Promise<ChaseResult<void>>;

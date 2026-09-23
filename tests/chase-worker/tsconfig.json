@@ -12,6 +12,7 @@
       "@saas/contracts": ["../../packages/contracts/src/index.ts"],
       "@saas/contracts/*": ["../../packages/contracts/src/*.ts"],
       "@saas/db/*": ["../../packages/db/src/*/index.ts"],
+      "@saas/notifications-client": ["../../packages/notifications-client/src/index.ts"],
       "@chase-worker/*": ["../../apps/chase-worker/src/*.ts"]
     }
   },

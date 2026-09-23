@@ -12,6 +12,7 @@ spec:
   dependsOn:
     - component: membership-worker
     - component: policy-worker
+    - component: notifications-worker
   # BF6 wiring documents from orun secrets (SEC-JOB): lease-published by
   # the infra components; wire-live renders the wrangler template from
   # these instead of Secrets Manager documents.
