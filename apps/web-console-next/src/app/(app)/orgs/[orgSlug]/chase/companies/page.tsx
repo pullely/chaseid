@@ -131,7 +131,8 @@ function Inner({ orgId }: { orgId: string }) {
       </header>
 
       {lastRun && (
-        <p className="text-xs text-muted-foreground">
+        // A div, not a p: Badge renders a div, which a <p> may not contain.
+        <div className="text-xs text-muted-foreground">
           Last sync {new Date(lastRun.startedAt).toLocaleString()} · {lastRun.companiesScanned} companies ·{" "}
           {lastRun.errors} error(s) ·{" "}
           {lastRun.provider === "fixture" ? (
@@ -139,7 +140,7 @@ function Inner({ orgId }: { orgId: string }) {
           ) : (
             <Badge variant="secondary">live Companies House</Badge>
           )}
-        </p>
+        </div>
       )}
 
       {precondition && (

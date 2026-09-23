@@ -8,6 +8,8 @@
  * client-side navigation state.
  */
 
+import { orgHomePath } from "@/lib/org-home";
+
 export interface Crumb {
   label: string;
   /** Absent on the current (last) crumb — it is not a link. */
@@ -56,7 +58,7 @@ export function buildBreadcrumbs(args: {
 }): Crumb[] {
   const { orgSlug, orgName, pathname } = args;
   const base = `/orgs/${orgSlug}`;
-  const crumbs: Crumb[] = [{ label: orgName, href: `${base}/projects` }];
+  const crumbs: Crumb[] = [{ label: orgName, href: orgHomePath(orgSlug) }];
 
   if (!pathname || !pathname.startsWith(`${base}`)) {
     // Foreign path (shouldn't happen inside OrgScope) — org crumb only.

@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-7
+spec:
+  goal: The console opens on the status board and looks like Chaseid, not the baseline.
+  affects:
+    - default/chaseid/web-console-next
+    - web-console-next
+    - default/chaseid/web-console-next-tests
+    - web-console-next-tests
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - the console root, org root, org breadcrumb, org switchers and Settings back button all land on /orgs/<slug>/chase/directors
+    - the default appearance is the Chaseid ledger theme (light paper, ink text, deep teal primary; navy dark variant) with a Chaseid sign-in mark and a legible fixture badge
+    - the top-bar project picker is hidden under the Solo profile
+  gates: []

@@ -32,6 +32,7 @@ import { buildSettingsNav, flattenSettingsNav, isSettingsLinkActive } from "./se
 import { SidebarAccount } from "./sidebar-account";
 import { SidebarOrgSwitcher } from "./sidebar-org-switcher";
 import { SidebarFind } from "./sidebar-find";
+import { orgHomePath } from "@/lib/org-home";
 
 const ICONS: Record<string, LucideIcon> = {
   Building2,
@@ -170,7 +171,7 @@ function SettingsNavContent({
       {/* Back button on the left, "Settings" centered (Vercel pattern). */}
       <div className={cn("relative mb-2 flex items-center justify-center", mobile ? "h-11" : "h-8")}>
         <Link
-          href={`/orgs/${orgSlug}/projects`}
+          href={orgHomePath(orgSlug)}
           {...(onNavigate ? { onClick: onNavigate } : {})}
           aria-label="Back to app"
           className={cn(

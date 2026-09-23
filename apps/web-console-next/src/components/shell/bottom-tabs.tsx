@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Building2, FolderKanban, Gauge, Settings, User2, type LucideIcon } from "lucide-react";
+import { Building2, Gauge, Settings, ShieldCheck, User2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { orgHomePath } from "@/lib/org-home";
 import { isLinkActive } from "./nav-items";
 
 interface Tab {
@@ -27,7 +28,7 @@ export function BottomTabs() {
   const tabs: Tab[] = orgSlug
     ? [
         { href: "/orgs", label: "Orgs", icon: Building2 },
-        { href: `/orgs/${orgSlug}/projects`, label: "Projects", icon: FolderKanban },
+        { href: orgHomePath(orgSlug), label: "Board", icon: ShieldCheck },
         { href: `/orgs/${orgSlug}/usage`, label: "Usage", icon: Gauge },
         { href: `/orgs/${orgSlug}/settings`, label: "Settings", icon: Settings },
       ]

@@ -18,7 +18,7 @@
  */
 
 import { STORAGE_PREFIX } from "./app-config";
-import { SOLO_MODE } from "./solo-mode";
+import { orgHomePath } from "./org-home";
 import { pickAccountBillingOrg } from "@/components/billing/account-org";
 
 const LAST_ORG_KEY = `${STORAGE_PREFIX}.last-org`;
@@ -51,19 +51,16 @@ export function clearLastOrgSlug(): void {
 }
 
 /**
- * Default destination after auth / at the app root: the last-used org's projects
+ * Default destination after auth / at the app root: the last-used org's home
  * if one is remembered, otherwise onboarding. There is deliberately no org-less
  * landing view — an organization is the unit of work, so when we don't know one
  * we send the user to `/onboarding`, which either creates the first org or
  * forwards to an existing one. Pure given a slug so it's trivially testable;
  * callers pass `readLastOrgSlug()`.
  */
-export function defaultOrgDestination(lastOrgSlug: string | null, soloMode: boolean = SOLO_MODE): string {
+export function defaultOrgDestination(lastOrgSlug: string | null): string {
   if (!lastOrgSlug) return "/onboarding";
-  // Solo: projects are suppressed, so the personal workspace's "dashboard" is
-  // its Account (settings) surface — where the kept single-user features live
-  // (account, notifications, billing, config). Baseline lands on projects.
-  return soloMode ? `/orgs/${lastOrgSlug}/settings` : `/orgs/${lastOrgSlug}/projects`;
+  return orgHomePath(lastOrgSlug);
 }
 
 /** Minimal shape of the API client needed to resolve the post-auth destination. */
