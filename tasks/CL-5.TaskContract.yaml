@@ -1,0 +1,32 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-5
+spec:
+  goal: A firm can add its staff, see its audit trail, and buy a plan priced in companies and GBP.
+  affects:
+    - default/chaseid/web-console-next
+    - web-console-next
+    - default/chaseid/web-console-next-tests
+    - web-console-next-tests
+    - default/chaseid/api-edge
+    - api-edge
+    - default/chaseid/api-edge-tests
+    - api-edge-tests
+    - default/chaseid/billing-worker
+    - billing-worker
+    - default/chaseid/billing-worker-tests
+    - billing-worker-tests
+    - default/chaseid/chase-worker
+    - chase-worker
+    - default/chaseid/chase-worker-tests
+    - chase-worker-tests
+    - default/chaseid/contracts
+    - contracts
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - members, invitations and audit are visible under the firm profile while projects, environments and usage stay hidden
+    - the plan cards list companies and GBP prices and Billing shows N of M companies
+    - Settings shows the chase window and interval and the sweep honours them
+  gates: []

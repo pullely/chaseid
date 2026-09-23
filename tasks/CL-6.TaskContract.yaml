@@ -1,0 +1,24 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-6
+spec:
+  goal: A signed-out visitor to app.chaseid.app sees what Chaseid does and costs, and prod sign-in has no developer affordances.
+  affects:
+    - default/chaseid/web-console-next
+    - web-console-next
+    - default/chaseid/web-console-next-tests
+    - web-console-next-tests
+    - default/chaseid/api-edge
+    - api-edge
+    - infra
+    - LICENSE
+    - README.md
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - signed-out / renders the landing page and /pricing, /privacy, /terms, /aup answer 200
+    - the prod login has no bearer-token tab and no env badge
+    - api.chaseid.app/health and app.chaseid.app answer 200
+    - a LICENSE file is on main
+  gates: []
