@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CH-1
+spec:
+  goal: The Chaseid epic's doc set is on main and attached to the epic in Orunbase.
+  affects:
+    - specs/epics/chaseid-director-verification
+    - tasks
+  doneWhen:
+    - the five documents are on main under specs/epics/chaseid-director-verification/
+    - orun spec list --epic chaseid-director-verification shows them
+    - the epic and its four milestones exist in the workspace's task plane
+  gates: []
