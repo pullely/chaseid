@@ -177,8 +177,10 @@ risk = "at_risk"  when daysUntilDue <= 30 and any person on the company is unver
 **The report** (`GET …/chase/report/at-risk`) returns the at-risk companies
 with their unverified people. `Accept: text/csv` or `?format=csv` renders the
 same rows as a streamed `text/csv` response with
-`content-disposition: attachment`, generated per request. Nothing is stored,
-because R2 is not enabled on this account (see `CH-B`).
+`content-disposition: attachment`, generated per request. Nothing is stored
+(see `CH-B`): the report is a view of the register at the moment it is asked
+for, and storing it would make a snapshot that goes stale and has to be
+retained, deleted and explained.
 
 **Internal seam.** `POST /v1/internal/chase/sync` on the worker, reachable
 only over a service binding (never through api-edge), is what the cron calls
@@ -297,9 +299,10 @@ Chaseid-specific billing code at all.
 
 ## 5. Out of scope
 
-- **PDF reports.** The brief asks for CSV *or* PDF. R2 is not enabled on this
-  Cloudflare account, so there is nowhere to put a rendered document; CSV is
-  streamed per request instead. See `CH-B`.
+- **PDF reports.** The brief asks for CSV *or* PDF. R2 is available on this
+  account, so storage is no longer the obstacle; what a PDF needs is a
+  rendering engine in a Worker, which is its own piece of work and buys a
+  practice nothing a CSV in its own spreadsheet does not. See `CH-B`.
 - **The new-appointment watch** (the brief's M4 and its post-transition pricing
   tier). It needs a different clock — a change feed rather than a nightly
   full sweep — and belongs after the three milestones here.

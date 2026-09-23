@@ -1,0 +1,25 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CH-2
+spec:
+  goal: A firm can import client companies by company number and a nightly cron keeps their officers, PSCs and next confirmation-statement date in sync, with no Companies House API key present.
+  affects:
+    - apps/chase-worker
+    - apps/api-edge
+    - packages/db
+    - packages/contracts
+    - packages/policy-engine
+    - tests/chase-worker
+    - tests/db
+    - tests/policy-engine
+    - specs/epics/chaseid-director-verification
+    - tasks
+    - pnpm-lock.yaml
+  doneWhen:
+    - the four chase_* migrations are registered in packages/db/src/manifest.ts and applied on stage and prod
+    - POST /v1/organizations/{org}/chase/companies/import accepts a CSV of company numbers and answers 200 on stage and prod
+    - GET /v1/organizations/{org}/chase/companies lists the imported companies with a nextStatementDue and per-person verification states
+    - GET /v1/organizations/{org}/chase/sync-runs reports provider "fixture" when COMPANIES_HOUSE_API_KEY is unset
+    - tests/chase-worker is green in CI
+  gates: []

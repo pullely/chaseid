@@ -7,6 +7,7 @@ import { isAuthRoute, handleAuthRoute } from "./auth-facade";
 import { isOrgRoute, handleOrgRoute } from "./org-facade";
 import { isProjectRoute, handleProjectRoute } from "./project-facade";
 import { isAuditRoute, handleAuditRoute } from "./audit-facade";
+import { isChaseRoute, handleChaseRoute } from "./chase-facade";
 import { isConfigRoute, handleConfigRoute } from "./config-facade";
 import { isWebhooksRoute, handleWebhooksRoute } from "./webhooks-facade";
 import { isMeteringRoute, handleMeteringRoute } from "./metering-facade";
@@ -46,6 +47,8 @@ export default {
       response = notFound(requestId, url.pathname);
     } else if (isAuthRoute(url.pathname)) {
       response = await handleAuthRoute(request, env, requestId, url.pathname);
+    } else if (isChaseRoute(url.pathname)) {
+      response = await handleChaseRoute(request, env, requestId, url.pathname);
     } else if (isAuditRoute(url.pathname)) {
       response = await handleAuditRoute(request, env, requestId, url.pathname);
     } else if (isConfigRoute(url.pathname)) {

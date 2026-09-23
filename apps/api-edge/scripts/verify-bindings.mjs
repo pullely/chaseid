@@ -45,6 +45,10 @@ const EXPECTED_SERVICE_BINDINGS = [
   { binding: "IDENTITY_WORKER", worker: "identity-worker" },
   { binding: "MEMBERSHIP_WORKER", worker: "membership-worker" },
   { binding: "PROJECTS_WORKER", worker: "projects-worker" },
+  // chaseid CH1: the product's own worker. Asserted here for the same reason
+  // the other three are — a missing service binding is a 503 nobody sees
+  // until a firm tries to import its book.
+  { binding: "CHASE_WORKER", worker: "chase-worker" },
 ];
 
 const configPath = resolve(__dirname, "../wrangler.jsonc");

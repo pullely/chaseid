@@ -26,10 +26,17 @@ describe("Integrations Migration Verification", () => {
     );
   });
 
-  it("orders the integrations migrations at the manifest tail", () => {
+  // Ordering is relative, not absolute. The original assertion pinned these
+  // two to the LAST two slots in the manifest, which made the baseline's own
+  // test fail the first time a product added a migration of its own (chaseid
+  // CH1 added the four `chase` ones). What the migration runner actually
+  // requires is that 190 applies after the 180 it alters.
+  it("orders the integrations migrations after everything they depend on", () => {
     const ids = manifest.migrations.map((m) => m.id);
-    expect(ids.indexOf("180_integrations_foundation")).toBe(ids.length - 2);
-    expect(ids.indexOf("190_integrations_delivery_attribution")).toBe(ids.length - 1);
+    const foundation = ids.indexOf("180_integrations_foundation");
+    const attribution = ids.indexOf("190_integrations_delivery_attribution");
+    expect(foundation).toBeGreaterThan(-1);
+    expect(attribution).toBe(foundation + 1);
   });
 
   it("manifest checksums match the on-disk up.sql files", () => {

@@ -1,0 +1,89 @@
+// Rendered to wrangler.jsonc by tooling/wire/render.mjs (BF6 deploy-time wiring).
+// Resource IDs are NEVER committed: @@wiring(<component>/<env>:<key>)@@ tokens are
+// resolved from the workspace's orun secrets at deploy time (wire-live) or from the
+// committed wiring.fixture.json for offline dry-runs (wire-fixture).
+{
+  "name": "chaseid-chase-worker",
+  "compatibility_date": "2025-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/index.ts",
+  "minify": false,
+  // Top-level so every environment inherits them, matching the baseline's own
+  // cron workers (webhooks, metering, integrations).
+  //   15 2 * * *  the nightly Companies House sweep (CH1)
+  //   0 9 * * *   the daily chase sweep, and the firm digest on Mondays (CH2/CH3)
+  "triggers": {
+    "crons": ["15 2 * * *", "0 9 * * *"]
+  },
+  "vars": {
+    "ENVIRONMENT": "local"
+  },
+  "env": {
+    "dev": {
+      "vars": {
+        "ENVIRONMENT": "dev"
+      }
+    },
+    "stage": {
+      "workers_dev": false,
+      "vars": {
+        "ENVIRONMENT": "stage"
+      },
+      "d1_databases": [
+        {
+          "binding": "PLATFORM_DB",
+          "database_name": "chaseid-stage",
+          "database_id": "@@wiring(cloudflare-d1/stage:d1_database_id)@@"
+        }
+      ],
+      // CH-F: the provider response cache. This is the api-edge idempotency
+      // namespace, shared on purpose — every key this worker writes is
+      // prefixed `ch:v1:` and the account has no second namespace to give.
+      "kv_namespaces": [
+        {
+          "binding": "CHASE_CACHE",
+          "id": "@@wiring(cloudflare-kv/stage:api_edge_idempotency_kv_id)@@"
+        }
+      ],
+      "services": [
+        {
+          "binding": "MEMBERSHIP_WORKER",
+          "service": "chaseid-membership-worker-stage"
+        },
+        {
+          "binding": "POLICY_WORKER",
+          "service": "chaseid-policy-worker-stage"
+        }
+      ]
+    },
+    "prod": {
+      "workers_dev": false,
+      "vars": {
+        "ENVIRONMENT": "prod"
+      },
+      "d1_databases": [
+        {
+          "binding": "PLATFORM_DB",
+          "database_name": "chaseid-prod",
+          "database_id": "@@wiring(cloudflare-d1/prod:d1_database_id)@@"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "CHASE_CACHE",
+          "id": "@@wiring(cloudflare-kv/prod:api_edge_idempotency_kv_id)@@"
+        }
+      ],
+      "services": [
+        {
+          "binding": "MEMBERSHIP_WORKER",
+          "service": "chaseid-membership-worker-prod"
+        },
+        {
+          "binding": "POLICY_WORKER",
+          "service": "chaseid-policy-worker-prod"
+        }
+      ]
+    }
+  }
+}

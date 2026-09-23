@@ -183,5 +183,41 @@ export const manifest: MigrationManifest = {
       description:
         "Connection pointer on the inbound-delivery inbox (nullable connection_id + partial index) — lets the per-connection delivery log scope precisely; attributed by the IG2 cron drain",
     },
+    {
+      id: "200_chase_companies",
+      context: "chase",
+      path: "200_chase_companies/up.sql",
+      checksum:
+        "869db68816f37bc724d3bf0766096deb647b18239626386f8523798180bc05fa",
+      description:
+        "The client company register (CH1) — one row per limited company on a firm's book, keyed by Companies House company number per org, carrying the next confirmation-statement date the whole product clocks off",
+    },
+    {
+      id: "210_chase_people",
+      context: "chase",
+      path: "210_chase_people/up.sql",
+      checksum:
+        "17ed4e49a12fff6571d3245650dfd49054c0be5d361183c9c3c6c01e8b879544",
+      description:
+        "Directors, secretaries and PSCs per company (CH1) — the three-valued verification state, the firm-supplied contact address Companies House does not publish, and the chase-step counter CH2 drives",
+    },
+    {
+      id: "220_chase_sync_runs",
+      context: "chase",
+      path: "220_chase_sync_runs/up.sql",
+      checksum:
+        "c80838f7d6668ef6961fb8d7a66a87e187e4e4381acf04a132111ca70a87313d",
+      description:
+        "One row per Companies House sweep (CH1) — records which provider implementation served it, so recorded-fixture data is never mistaken for live data",
+    },
+    {
+      id: "230_chase_messages",
+      context: "chase",
+      path: "230_chase_messages/up.sql",
+      checksum:
+        "51b6367a7fe0fe4a0ae4684810185ec9dc5d0c84ee185e754f09147475f27d04",
+      description:
+        "The append-only chase log (CH1 schema, CH2 behaviour) — every chase email with its step, address, template and enqueue verdict, for the firm's AML file",
+    },
   ],
 };
