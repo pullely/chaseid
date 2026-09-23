@@ -20,6 +20,11 @@ const CHASE_ROUTES: Array<{ re: RegExp; methods: string[] }> = [
   { re: /^\/v1\/organizations\/[^/]+\/chase\/companies\/[^/]+$/, methods: ["GET", "DELETE"] },
   { re: /^\/v1\/organizations\/[^/]+\/chase\/companies$/, methods: ["GET"] },
   { re: /^\/v1\/organizations\/[^/]+\/chase\/sync-runs$/, methods: ["GET"] },
+  // CH2 — the status board and the chase.
+  { re: /^\/v1\/organizations\/[^/]+\/chase\/directors\/[^/]+\/chase$/, methods: ["POST"] },
+  { re: /^\/v1\/organizations\/[^/]+\/chase\/directors\/[^/]+$/, methods: ["PATCH"] },
+  { re: /^\/v1\/organizations\/[^/]+\/chase\/directors$/, methods: ["GET"] },
+  { re: /^\/v1\/organizations\/[^/]+\/chase\/messages$/, methods: ["GET"] },
 ];
 
 const FORWARDED_HEADERS = [

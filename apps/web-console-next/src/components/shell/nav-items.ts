@@ -53,6 +53,18 @@ export function buildNavSections(scope: NavScope, soloMode: boolean = SOLO_MODE)
   // signed-in identity lives in the account chip at the bottom of the sidebar.
 
   if (orgBase) {
+    // Chaseid's own surface comes first: it is the product. Shown under both
+    // profiles — the chase is the reason the org exists, Solo or not.
+    sections.push({
+      id: "chase",
+      label: "Chaseid",
+      links: [
+        { href: `${orgBase}/chase/directors`, label: "Status board", icon: "ShieldCheck" },
+        { href: `${orgBase}/chase/companies`, label: "Companies", icon: "Building2" },
+        { href: `${orgBase}/chase/messages`, label: "Chase log", icon: "ScrollText" },
+      ],
+    });
+
     // The primary sidebar is product-focused: the day-to-day surfaces an
     // operator works in. Organization administration (members, billing, API
     // keys, webhooks, config, audit, identity) lives behind a single Settings

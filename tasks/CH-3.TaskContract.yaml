@@ -1,0 +1,42 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CH-3
+spec:
+  goal: An unverified director on a company filing within 30 days is chased by email on a three-step clock, every send is on the chase log and the audit trail, and the firm works the status board in the console.
+  affects:
+    - default/chaseid/chase-worker
+    - default/chaseid/chase-worker-tests
+    - default/chaseid/api-edge
+    - default/chaseid/api-edge-tests
+    - default/chaseid/contracts
+    - default/chaseid/db
+    - default/chaseid/db-tests
+    - default/chaseid/db-migrate
+    - default/chaseid/notifications-worker
+    - default/chaseid/notifications-worker-tests
+    - default/chaseid/sdk
+    - default/chaseid/web-console-next
+    - default/chaseid/web-console-next-tests
+    - chase-worker
+    - chase-worker-tests
+    - api-edge
+    - api-edge-tests
+    - contracts
+    - db
+    - db-tests
+    - db-migrate
+    - notifications-worker
+    - notifications-worker-tests
+    - sdk
+    - web-console-next
+    - web-console-next-tests
+    - specs/epics/chaseid-director-verification
+    - tasks
+  doneWhen:
+    - a sweep against a fixture-seeded org moves an unverified person on a company due within 30 days from chaseStep 0 to 1, writes one chase_messages row, and a second sweep on the same day writes none
+    - after the reminder interval a later sweep moves the same person to step 2 rather than re-sending step 1
+    - GET /v1/organizations/{org}/chase/messages returns the chase log on stage and prod, and GET …/audit carries the matching chase.director.chased entries
+    - the three chase templates render subject, html and text with every substitution escaped, asserted in tests/notifications-worker
+    - the status board page lists directors filtered by state and risk, and marking a person verified updates the row optimistically
+  gates: []

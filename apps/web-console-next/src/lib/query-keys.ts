@@ -27,4 +27,11 @@ export const qk = {
   billingSummary: (orgId: string) => ["billingSummary", orgId] as const,
   entitlements: (orgId: string) => ["entitlements", orgId] as const,
   invoices: (orgId: string) => ["invoices", orgId] as const,
+  // Chaseid (CH2). Board keys carry the filter string so each filter
+  // combination is its own cache entry; invalidate by the ["chaseDirectors",
+  // orgId] prefix to refresh them all.
+  chaseCompanies: (orgId: string) => ["chaseCompanies", orgId] as const,
+  chaseSyncRuns: (orgId: string) => ["chaseSyncRuns", orgId] as const,
+  chaseDirectors: (orgId: string, filters: string) => ["chaseDirectors", orgId, filters] as const,
+  chaseMessages: (orgId: string) => ["chaseMessages", orgId] as const,
 };

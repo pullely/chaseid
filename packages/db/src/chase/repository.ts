@@ -353,6 +353,17 @@ export function createChaseRepository(executor: SqlExecutor): ChaseRepository {
           args.push(params.companyId);
           where.push(`p.company_id = $${args.length}`);
         }
+        if (params.risk && params.riskCutoff) {
+          args.push(params.riskCutoff);
+          const cutoff = `$${args.length}`;
+          if (params.risk === "at_risk") {
+            where.push(`c.next_statement_due IS NOT NULL AND c.next_statement_due <= ${cutoff} AND p.verification_state <> 'verified'`);
+          } else if (params.risk === "due_soon") {
+            where.push(`c.next_statement_due IS NOT NULL AND c.next_statement_due <= ${cutoff} AND p.verification_state = 'verified'`);
+          } else {
+            where.push(`(c.next_statement_due IS NULL OR c.next_statement_due > ${cutoff})`);
+          }
+        }
         args.push(params.limit);
         const limitArg = args.length;
         args.push(params.offset);
@@ -466,6 +477,30 @@ export function createChaseRepository(executor: SqlExecutor): ChaseRepository {
           [step, chasedAt, personId],
         );
         return { ok: true, value: undefined };
+      } catch (error) {
+        return internal(error);
+      }
+    },
+
+    async listChaseCandidates(cutoff: string, limit: number): Promise<ChaseResult<ChasePersonWithCompany[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT ${PERSON_COLUMNS.split(", ").map((c) => `p.${c}`).join(", ")},
+                  c.company_number AS company_number, c.company_name AS company_name,
+                  c.next_statement_due AS next_statement_due
+             FROM chase_people p
+             JOIN chase_companies c ON c.id = p.company_id
+            WHERE p.verification_state = 'unverified'
+              AND p.resigned_on IS NULL
+              AND p.contact_email IS NOT NULL AND p.contact_email <> ''
+              AND p.chase_step < 3
+              AND c.next_statement_due IS NOT NULL
+              AND c.next_statement_due <= $1
+            ORDER BY c.next_statement_due ASC, p.id ASC
+            LIMIT $2`,
+          [cutoff, limit],
+        );
+        return { ok: true, value: result.rows.map(mapPersonWithCompany) };
       } catch (error) {
         return internal(error);
       }

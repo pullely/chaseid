@@ -6,8 +6,12 @@ import { handleImportCompanies } from "./handlers/import-companies.js";
 import { handleListCompanies } from "./handlers/list-companies.js";
 import { handleListSyncRuns } from "./handlers/list-sync-runs.js";
 import { handleSyncCompany } from "./handlers/sync-company.js";
+import { handleChaseDirector } from "./handlers/chase-director.js";
+import { handleListDirectors } from "./handlers/list-directors.js";
+import { handleListMessages } from "./handlers/list-messages.js";
+import { handleUpdateDirector } from "./handlers/update-director.js";
 import { errorResponse, methodNotAllowed, notFound } from "./http.js";
-import { generateRequestId, parseCompanyPublicId, parseOrgPublicId } from "./ids.js";
+import { generateRequestId, parseCompanyPublicId, parseOrgPublicId, parsePersonPublicId } from "./ids.js";
 
 const REQUEST_ID_RE = /^[\w-]{1,128}$/;
 
@@ -36,6 +40,12 @@ const ORG_COMPANY_SYNC_RE = /^\/v1\/organizations\/([^/]+)\/chase\/companies\/([
 const ORG_COMPANY_RE = /^\/v1\/organizations\/([^/]+)\/chase\/companies\/([^/]+)$/;
 const ORG_COMPANIES_RE = /^\/v1\/organizations\/([^/]+)\/chase\/companies$/;
 const ORG_SYNC_RUNS_RE = /^\/v1\/organizations\/([^/]+)\/chase\/sync-runs$/;
+// CH2 — the status board and the chase. `…/directors/{prs}/chase` before
+// `…/directors/{prs}`, for the same reason as import above.
+const ORG_DIRECTOR_CHASE_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors\/([^/]+)\/chase$/;
+const ORG_DIRECTOR_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors\/([^/]+)$/;
+const ORG_DIRECTORS_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors$/;
+const ORG_MESSAGES_RE = /^\/v1\/organizations\/([^/]+)\/chase\/messages$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -101,6 +111,48 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       return handleListSyncRuns(request, env, requestId, actor, orgUuid);
+    }
+
+    const chaseMatch = url.pathname.match(ORG_DIRECTOR_CHASE_RE);
+    if (chaseMatch) {
+      if (request.method !== "POST") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(chaseMatch[1]!);
+      const personUuid = parsePersonPublicId(chaseMatch[2]!);
+      if (!orgUuid || !personUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleChaseDirector(env, requestId, actor, orgUuid, personUuid);
+    }
+
+    const directorMatch = url.pathname.match(ORG_DIRECTOR_RE);
+    if (directorMatch) {
+      if (request.method !== "PATCH") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(directorMatch[1]!);
+      const personUuid = parsePersonPublicId(directorMatch[2]!);
+      if (!orgUuid || !personUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleUpdateDirector(request, env, requestId, actor, orgUuid, personUuid);
+    }
+
+    const directorsMatch = url.pathname.match(ORG_DIRECTORS_RE);
+    if (directorsMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(directorsMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleListDirectors(request, env, requestId, actor, orgUuid);
+    }
+
+    const messagesMatch = url.pathname.match(ORG_MESSAGES_RE);
+    if (messagesMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(messagesMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleListMessages(request, env, requestId, actor, orgUuid);
     }
 
     return notFound(requestId, url.pathname);

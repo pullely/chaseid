@@ -8,6 +8,7 @@ import { createMembershipRepository } from "@saas/db/membership";
 import { createProjectsRepository } from "@saas/db/projects";
 import { createMeteringRepository } from "@saas/db/metering";
 import { createWebhookRepository } from "@saas/db/webhooks";
+import { createEventsRepository } from "@saas/db/events";
 import { asUuid } from "@saas/db";
 import { D1ApiAdapter } from "@saas/db/runner";
 
@@ -320,6 +321,60 @@ describe("the rewritten queries, against a real SQLite engine", () => {
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
     );
     expect(new Date(row.previous_secret_expires_at).getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("appends an event WITH its audit entry — the path every audited write takes", async () => {
+    // chaseid CH2: this was a Postgres data-modifying CTE with row_to_json,
+    // which SQLite cannot parse, so every audited write on D1 failed.
+    const repo = createEventsRepository(executor);
+    const orgId = "99999999-9999-4999-8999-999999999999";
+    const appended = await repo.appendEventWithAudit({
+      event: {
+        id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        type: "chase.director.chased",
+        version: 1,
+        source: "chase-worker",
+        occurredAt: new Date("2026-09-23T09:00:00.000Z"),
+        actorType: "system",
+        actorId: "chase-worker",
+        orgId,
+        subjectKind: "director",
+        subjectId: "prs_1",
+        subjectName: "Jane Director",
+        requestId: "req_1",
+        payload: { step: 1 },
+      },
+      audit: { id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", category: "chase", description: "Sent chase step 1" },
+    });
+    expect(appended.ok).toBe(true);
+    if (appended.ok) {
+      expect(appended.value.audit.eventId).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+      expect(appended.value.audit.category).toBe("chase");
+    }
+
+    const page = await repo.queryAuditByOrg(orgId, { limit: 10, cursor: null }, "chase");
+    expect(page.ok).toBe(true);
+    if (page.ok) expect(page.value.items.map((a) => a.eventType)).toEqual(["chase.director.chased"]);
+
+    // A replay of the same event id is a conflict, not a second row.
+    const again = await repo.appendEventWithAudit({
+      event: {
+        id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        type: "chase.director.chased",
+        version: 1,
+        source: "chase-worker",
+        occurredAt: new Date("2026-09-23T09:00:00.000Z"),
+        actorType: "system",
+        actorId: "chase-worker",
+        orgId,
+        subjectKind: "director",
+        subjectId: "prs_1",
+        requestId: "req_1",
+        payload: {},
+      },
+      audit: { id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" },
+    });
+    expect(again.ok).toBe(false);
   });
 
   it("counts a delivery failure streak past the epoch fallback", async () => {

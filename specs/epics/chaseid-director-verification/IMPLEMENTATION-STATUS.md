@@ -6,10 +6,72 @@ the code departed from `design.md`.
 | Milestone | State | PR |
 |---|---|---|
 | CH0 — the spec | ✅ shipped | [#8](https://github.com/pullely/chaseid/pull/8) |
-| CH1 — the register and the nightly sync | | |
+| CH1 — the register and the nightly sync | ✅ shipped | [#9](https://github.com/pullely/chaseid/pull/9) |
 | CH2 — the status board and the chase | | |
 | CH3 — the at-risk report, the digest and the firm's roles | | |
 
 ## Departures from the design
 
-<One subsection per departure: what the design said, what was built, why.>
+### CH1 — `CHASE_CACHE` is the api-edge idempotency namespace, not a new one
+
+**Design:** a new `CHASE_CACHE` KV namespace provisioned by
+`infra/terraform/cloudflare-kv` through a `chase_cache_kv_id` wiring key.
+**Built:** `CHASE_CACHE` is bound to the existing
+`api_edge_idempotency_kv_id` namespace in both envs, and every key the worker
+writes is prefixed `ch:v1:`. **Why:** no infrastructure change inside CH1's
+landing, and the prefix keeps the two uses disjoint. A dedicated namespace is a
+one-line wiring change later if the idempotency namespace's size ever matters.
+
+### CH1 — the import route syncs inline
+
+The import route runs the provider sweep for the companies it just wrote, in
+the same request, before matching contact addresses — Companies House publishes
+no personal addresses, and the people those addresses belong to do not exist
+as rows until the sync has run. Sync runs it creates carry `trigger: "import"`
+(the design listed `cron | manual`).
+
+### CH2 — the baseline's `appendEventWithAudit` did not run on D1 (fixed here)
+
+**Found:** the cirrus baseline's `packages/db/src/events/repository.ts` wrote
+`appendEventWithAudit` as ONE Postgres data-modifying CTE
+(`WITH inserted_event AS (INSERT …) … row_to_json(…) … FULL JOIN`). D1 is
+SQLite: asked to `EXPLAIN` it, stage D1 answered
+`near "INSERT": syntax error` and `no such function: row_to_json`. Every
+audited write therefore fell into the repository's catch and returned an error
+— silently for callers that ignore it (CH1's `chase.company.imported` never
+reached the audit surface), fatally for callers that throw on it.
+**Built:** two statements, `INSERT … ON CONFLICT (id) DO NOTHING RETURNING *`
+into `events_event_log`, then the same into `events_audit_entries`; portable to
+both engines, asserted against real SQLite in `tests/db` and end to end in
+`tests/chase-worker/src/chase-sqlite.test.ts`. **Not fixed here** (see
+`CH-J`): the fix reaches only the workers this PR redeploys (`chase-worker`);
+the other baseline workers bundle `@saas/db` at build time and keep the broken
+statement until they are next deployed.
+
+### CH2 — "in the same transaction" is ordered, not atomic
+
+D1 has no interactive transactions; the baseline's `executor.transaction` runs
+the callback's statements in order with no rollback. A chase therefore writes
+`chase_messages` first, then advances `chase_step`, then appends
+`chase.director.chased`. A failure part-way leaves the message on the AML file
+and the step unadvanced, so the next sweep retries the same step — and the
+notifications idempotency key `chase:<prs>:<step>` collapses the resend.
+
+### CH2 — a failed enqueue does not advance the step
+
+The design had every send advance the step. As built, only an enqueue the
+notifications worker accepted moves the clock; a failed one (`no_binding`,
+`non_2xx`, …) is still recorded on `chase_messages` with its verdict, and the
+same step is retried next morning. Advancing on failure would skip a notice the
+person never received.
+
+### CH2 — who is chased
+
+Only `verification_state = 'unverified'`; an `unknown` person is shown on the
+board but never emailed, because `unknown` means the provider did not say, and
+chasing someone who may already have verified is the complaint `CH-D` warns
+about. "Chase now" (`POST …/directors/{prs}/chase`) skips the 30-day window and
+the seven-day interval but never the verified/resigned/no-address checks, and
+answers `200` with `skippedReason` rather than an error when it sends nothing.
+A human who is both an officer and a PSC of one company is two rows and, given
+an address on both, receives two chases per step.

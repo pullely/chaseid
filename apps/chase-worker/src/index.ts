@@ -1,5 +1,6 @@
 import type { Env } from "./env.js";
 import { route } from "./router.js";
+import { runChaseSweep } from "./chase.js";
 import { runNightlySweep } from "./sync.js";
 
 export default {
@@ -20,6 +21,8 @@ export default {
   async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     if (controller.cron === "15 2 * * *") {
       ctx.waitUntil(runNightlySweep(env));
+    } else if (controller.cron === "0 9 * * *") {
+      ctx.waitUntil(runChaseSweep(env).then(() => undefined));
     }
   },
 } satisfies ExportedHandler<Env>;
