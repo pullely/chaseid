@@ -9,7 +9,9 @@ import { requirePermission } from "../authorize.js";
 import { appendChaseEvent } from "../audit.js";
 import { isValidEmail, parseImportCsv, type ParsedImportRow } from "../csv.js";
 import { errorResponse, successResponse, validationError } from "../http.js";
-import { companyPublicId, syncRunPublicId } from "../ids.js";
+import { companyPublicId, orgPublicId, syncRunPublicId } from "../ids.js";
+import { checkEntitlement, COMPANIES_LIMIT_ENTITLEMENT_KEY, decideCompaniesQuota } from "../billing-client.js";
+import { recordCompaniesGauge } from "../metering.js";
 import { normaliseCompanyNumber, resolveProvider } from "../provider/index.js";
 import { sweepCompanies } from "../sync.js";
 
@@ -113,10 +115,45 @@ export async function handleImportCompanies(
     );
   }
 
+  if (!env.BILLING_WORKER) {
+    return errorResponse("internal_error", "Service unavailable", 503, requestId);
+  }
+
   const executor = createSqlExecutor(env.PLATFORM_DB);
   try {
     const repo = createChaseRepository(executor);
     const eventsRepo = createEventsRepository(executor);
+
+    // CH3: the plan's company allowance, checked BEFORE the first insert so a
+    // firm over its allowance gets the baseline's refusal, not a half-written
+    // register. Only NEW company numbers count; re-importing a known one is
+    // free.
+    const entitlement = await checkEntitlement(
+      env.BILLING_WORKER,
+      orgPublicId(orgId),
+      COMPANIES_LIMIT_ENTITLEMENT_KEY,
+      requestId,
+    );
+    if (entitlement.kind === "service_error") {
+      return errorResponse("internal_error", "Service unavailable", 503, requestId);
+    }
+    const existing = await repo.countCompanies(orgId);
+    if (!existing.ok) return errorResponse("internal_error", "Service unavailable", 503, requestId);
+    let fresh = 0;
+    for (const number of new Set(rows.map((row) => row.companyNumber))) {
+      const known = await repo.getCompanyByNumber(orgId, number);
+      if (!known.ok) fresh += 1;
+    }
+    const gate = decideCompaniesQuota(entitlement.decision, existing.value + fresh);
+    if (gate.kind === "deny") {
+      return errorResponse("precondition_failed", gate.message, 412, requestId, {
+        reason: gate.reason,
+        entitlementKey: COMPANIES_LIMIT_ENTITLEMENT_KEY,
+        limit: gate.limit,
+        current: existing.value,
+        requested: fresh,
+      });
+    }
 
     let imported = 0;
     let updated = 0;
@@ -171,6 +208,8 @@ export async function handleImportCompanies(
         payload: { companyId: companyPublicId(company.id), companyNumber: company.companyNumber },
       });
     }
+
+    await recordCompaniesGauge(executor, repo, orgId, now);
 
     const response: ImportChaseCompaniesResponse = {
       imported,

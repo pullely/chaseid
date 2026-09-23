@@ -36,6 +36,8 @@ const ALLOWED_INTERNAL_CALLERS: ReadonlySet<string> = new Set([
   "projects-worker",
   "membership-worker",
   "integrations-worker",
+  // chaseid CH3: the plan's client-register allowance, checked on import.
+  "chase-worker",
   // api-edge forwards verified-at-source-of-truth inbound provider webhooks
   // (it streams the raw body here; this worker verifies the signature).
   "api-edge",

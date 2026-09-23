@@ -69,7 +69,7 @@ kind. The console gains `chase/companies`, `chase/directors` and
 - the three templates render `{ subject, html, text }` with every substitution escaped, asserted in `tests/notifications-worker`
 - the status board page lists directors filtered by `state` and `risk`, and marking a person verified updates the row optimistically
 
-## CH3 — the at-risk report, the digest and the firm's roles
+## CH3 — the at-risk report, the digest and the firm's roles ✅
 
 The milestone that makes Chaseid sellable to a firm rather than to a person.
 `GET …/chase/report/at-risk` returns this month's at-risk companies with their

@@ -57,6 +57,10 @@
         {
           "binding": "NOTIFICATIONS_WORKER",
           "service": "chaseid-notifications-worker-stage"
+        },
+        {
+          "binding": "BILLING_WORKER",
+          "service": "chaseid-billing-worker-stage"
         }
       ]
     },
@@ -90,6 +94,10 @@
         {
           "binding": "NOTIFICATIONS_WORKER",
           "service": "chaseid-notifications-worker-prod"
+        },
+        {
+          "binding": "BILLING_WORKER",
+          "service": "chaseid-billing-worker-prod"
         }
       ]
     }

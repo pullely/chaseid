@@ -69,3 +69,37 @@ describe("the chase templates (CH2)", () => {
     expect(text).toContain("(3 days ago)");
   });
 });
+
+describe("chase.firm_digest (CH3)", () => {
+  const DIGEST = {
+    recipientName: "Ann",
+    companiesAtRisk: 2,
+    unverifiedPeople: 3,
+    chasesSentLastWeek: 5,
+    summary: "HARBOURSIDE (00000001) — due in 12d, 2 unverified\n<b>EVIL</b> (00000009) — 3d overdue, 1 unverified",
+    weekOf: "2026-09-21",
+  };
+
+  it("renders the counts and one list item per company, escaped", () => {
+    const rendered = renderEmailTemplate("chase.firm_digest", DIGEST, { brandName: "Chaseid" })!;
+    expect(rendered.subject).toBe("2 filings at risk this month — Chaseid");
+    expect(rendered.text).toContain("with 3 people still unverified. 5 chases were sent in the last week.");
+    expect(rendered.text).toContain("HARBOURSIDE (00000001)");
+    expect((rendered.html.match(/<li>/g) ?? []).length).toBe(2);
+    expect(rendered.html).toContain("&lt;b&gt;EVIL&lt;/b&gt;");
+    expect(rendered.html).not.toContain("<b>EVIL</b>");
+    expect(rendered.html).not.toMatch(/<a\s/i);
+  });
+
+  it("reads in the singular", () => {
+    const { subject, text } = renderEmailTemplate("chase.firm_digest", {
+      ...DIGEST,
+      companiesAtRisk: 1,
+      unverifiedPeople: 1,
+      chasesSentLastWeek: 1,
+    })!;
+    expect(subject).toBe("1 filing at risk this month");
+    expect(text).toContain("1 client company files");
+    expect(text).toContain("1 person still unverified. 1 chase was sent");
+  });
+});

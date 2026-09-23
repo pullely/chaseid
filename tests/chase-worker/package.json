@@ -22,7 +22,8 @@
   "dependencies": {
     "@saas/contracts": "workspace:*",
     "@saas/db": "workspace:*",
-    "@saas/notifications-client": "workspace:*"
+    "@saas/notifications-client": "workspace:*",
+    "@saas/policy-engine": "workspace:*"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
@@ -34,6 +35,7 @@
       "^@saas/contracts$": "<rootDir>/../../packages/contracts/src/index.ts",
       "^@saas/contracts/(.*)$": "<rootDir>/../../packages/contracts/src/$1.ts",
       "^@saas/notifications-client$": "<rootDir>/../../packages/notifications-client/src/index.ts",
+      "^@saas/policy-engine$": "<rootDir>/../../packages/policy-engine/src/index.ts",
       "^@chase-worker/(.*)$": "<rootDir>/../../apps/chase-worker/src/$1.ts",
       "^@saas/db$": "<rootDir>/../../packages/db/src/index.ts",
       "^@saas/db/manifest$": "<rootDir>/../../packages/db/src/manifest.ts",

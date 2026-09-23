@@ -1,6 +1,7 @@
 import type { Env } from "./env.js";
 import { route } from "./router.js";
 import { runChaseSweep } from "./chase.js";
+import { runFirmDigest } from "./digest.js";
 import { runNightlySweep } from "./sync.js";
 
 export default {
@@ -22,7 +23,12 @@ export default {
     if (controller.cron === "15 2 * * *") {
       ctx.waitUntil(runNightlySweep(env));
     } else if (controller.cron === "0 9 * * *") {
-      ctx.waitUntil(runChaseSweep(env).then(() => undefined));
+      // The chases first, so Monday's digest counts this morning's sends.
+      ctx.waitUntil(
+        runChaseSweep(env)
+          .then(() => runFirmDigest(env))
+          .then(() => undefined),
+      );
     }
   },
 } satisfies ExportedHandler<Env>;

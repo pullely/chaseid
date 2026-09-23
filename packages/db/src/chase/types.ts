@@ -218,6 +218,11 @@ export interface ChaseRepository {
    *  resigned, with an address, not yet escalated, on a company whose
    *  statement is due on or before `cutoff` (ISO date). Soonest filing first. */
   listChaseCandidates(cutoff: string, limit: number): Promise<ChaseResult<ChasePersonWithCompany[]>>;
+  /** CH3: the orgs that have at least one at-risk person (not verified, not
+   *  resigned, on a company due on or before `cutoff`) — the digest's list. */
+  listOrgsWithAtRisk(cutoff: string): Promise<ChaseResult<string[]>>;
+  /** CH3: chases recorded for an org at or after `since` (ISO timestamp). */
+  countChaseMessagesSince(orgId: string, since: string): Promise<ChaseResult<number>>;
 
   startSyncRun(input: StartSyncRunInput): Promise<ChaseResult<ChaseSyncRun>>;
   finishSyncRun(input: FinishSyncRunInput): Promise<ChaseResult<void>>;

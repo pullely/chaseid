@@ -10,6 +10,7 @@ import { handleChaseDirector } from "./handlers/chase-director.js";
 import { handleListDirectors } from "./handlers/list-directors.js";
 import { handleListMessages } from "./handlers/list-messages.js";
 import { handleUpdateDirector } from "./handlers/update-director.js";
+import { handleAtRiskReport } from "./handlers/at-risk-report.js";
 import { errorResponse, methodNotAllowed, notFound } from "./http.js";
 import { generateRequestId, parseCompanyPublicId, parseOrgPublicId, parsePersonPublicId } from "./ids.js";
 
@@ -46,6 +47,8 @@ const ORG_DIRECTOR_CHASE_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors\/
 const ORG_DIRECTOR_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors\/([^/]+)$/;
 const ORG_DIRECTORS_RE = /^\/v1\/organizations\/([^/]+)\/chase\/directors$/;
 const ORG_MESSAGES_RE = /^\/v1\/organizations\/([^/]+)\/chase\/messages$/;
+// CH3 — the at-risk report (JSON, or text/csv on ?format=csv / Accept).
+const ORG_REPORT_RE = /^\/v1\/organizations\/([^/]+)\/chase\/report\/at-risk$/;
 
 export async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
@@ -153,6 +156,16 @@ export async function route(request: Request, env: Env): Promise<Response> {
       const actor = resolveActor(request);
       if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
       return handleListMessages(request, env, requestId, actor, orgUuid);
+    }
+
+    const reportMatch = url.pathname.match(ORG_REPORT_RE);
+    if (reportMatch) {
+      if (request.method !== "GET") return methodNotAllowed(requestId);
+      const orgUuid = parseOrgPublicId(reportMatch[1]!);
+      if (!orgUuid) return errorResponse("not_found", "Not found", 404, requestId);
+      const actor = resolveActor(request);
+      if (!actor) return errorResponse("unauthenticated", "Authentication required", 401, requestId);
+      return handleAtRiskReport(request, env, requestId, actor, orgUuid);
     }
 
     return notFound(requestId, url.pathname);

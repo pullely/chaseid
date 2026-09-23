@@ -34,4 +34,5 @@ export const qk = {
   chaseSyncRuns: (orgId: string) => ["chaseSyncRuns", orgId] as const,
   chaseDirectors: (orgId: string, filters: string) => ["chaseDirectors", orgId, filters] as const,
   chaseMessages: (orgId: string) => ["chaseMessages", orgId] as const,
+  chaseReport: (orgId: string) => ["chaseReport", orgId] as const,
 };

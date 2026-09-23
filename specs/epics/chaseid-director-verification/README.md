@@ -8,14 +8,14 @@ Chaseid is for UK accountancy practices and company-secretarial firms with 50–
 
 | Field | Value |
 |-------|-------|
-| Status | In progress |
+| Status | ✅ Shipped |
 | Cluster | **CH** (CH0–CH3) |
 | Owner(s) | `apps/chase-worker` (the register, the sync, the chases) · `packages/db` (the migrations) · `packages/contracts` + `packages/sdk` (the wire) · `apps/notifications-worker` (the chase templates) · `apps/web-console-next` (the surface) |
 | Builds on | `cirrus baseline-v12` — extends identity/membership (the firm is an org, its staff are members), config (the chase policy), notifications (the chase emails), audit + domain events (the AML file), metering + quotas (the plan tiers), webhooks (at-risk fan-out) |
 | Changes | Adds one bounded context — the client register and its verification chase — as new D1 tables, new `/v1/organizations/{org}` route groups, two cron triggers and four console pages. No baseline table, route or worker contract is changed. |
 | Decisions locked | (1) Companies House is reached only through a `CompaniesHouseProvider` interface, and the build ships a recorded-fixture implementation alongside the HTTP one, so every milestone is demonstrably done without an API key. (2) Contact email addresses for directors come from the firm's own CSV, never from Companies House, which does not publish them. (3) Exports are streamed as CSV from a route and nothing is stored — not for want of a bucket (R2 was enabled on this account on 2026-09-23) but because a per-request CSV is what a practice pastes into its own spreadsheet, and a stored artefact is a retention question nobody asked for. |
 | Gate | CH1 is invisible (the register, the provider and the nightly sync). CH2 is the first user-visible change (the status board and the chase). |
-| Shipped as | |
+| Shipped as | [#8](https://github.com/pullely/chaseid/pull/8) CH0 · [#9](https://github.com/pullely/chaseid/pull/9) CH1 · [#10](https://github.com/pullely/chaseid/pull/10) CH2 · [#11](https://github.com/pullely/chaseid/pull/11) + [#12](https://github.com/pullely/chaseid/pull/12) CH3 — tasks CH-1…CH-5 on `pullely/chaseid`; live at `chaseid-api-edge-{stage,prod}.nexo-7be.workers.dev` with the recorded-fixture Companies House provider (no API key: `CH-A`) |
 
 ## Read order
 

@@ -506,6 +506,37 @@ export function createChaseRepository(executor: SqlExecutor): ChaseRepository {
       }
     },
 
+    async listOrgsWithAtRisk(cutoff: string): Promise<ChaseResult<string[]>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT DISTINCT p.org_id AS org_id
+             FROM chase_people p
+             JOIN chase_companies c ON c.id = p.company_id
+            WHERE p.verification_state <> 'verified'
+              AND p.resigned_on IS NULL
+              AND c.next_statement_due IS NOT NULL
+              AND c.next_statement_due <= $1
+            ORDER BY p.org_id`,
+          [cutoff],
+        );
+        return { ok: true, value: result.rows.map((row) => str(row.org_id)) };
+      } catch (error) {
+        return internal(error);
+      }
+    },
+
+    async countChaseMessagesSince(orgId: string, since: string): Promise<ChaseResult<number>> {
+      try {
+        const result = await executor.execute<Record<string, unknown>>(
+          `SELECT COUNT(*) AS n FROM chase_messages WHERE org_id = $1 AND sent_at >= $2`,
+          [orgId, since],
+        );
+        return { ok: true, value: Number(result.rows[0]?.n ?? 0) };
+      } catch (error) {
+        return internal(error);
+      }
+    },
+
     async startSyncRun(input: StartSyncRunInput): Promise<ChaseResult<ChaseSyncRun>> {
       try {
         const result = await executor.execute<Record<string, unknown>>(

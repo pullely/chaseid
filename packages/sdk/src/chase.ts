@@ -1,4 +1,5 @@
 import type {
+  ChaseAtRiskReportResponse,
   ChaseDirectorChaseResponse,
   ChaseRisk,
   ChaseVerificationState,
@@ -143,6 +144,24 @@ export class ChaseClient {
   listMessages(orgId: string, query: ChasePageQuery = {}, opts: RequestOptions = {}): Promise<ListChaseMessagesResponse> {
     return this.transport.request<ListChaseMessagesResponse>(
       { method: "GET", path: `${base(orgId)}/messages`, query: { limit: query.limit, cursor: query.cursor } },
+      opts,
+    );
+  }
+
+  /** GET /v1/organizations/:orgId/chase/report/at-risk — the JSON rendering. */
+  atRiskReport(orgId: string, opts: RequestOptions = {}): Promise<ChaseAtRiskReportResponse> {
+    return this.transport.request<ChaseAtRiskReportResponse>(
+      { method: "GET", path: `${base(orgId)}/report/at-risk` },
+      opts,
+    );
+  }
+
+  /** The same report as `text/csv` — the file the console's Download CSV
+   *  button saves. Generated per request; nothing is stored server-side. */
+  atRiskReportCsv(orgId: string, opts: RequestOptions = {}): Promise<string> {
+    return this.transport.requestText(
+      { method: "GET", path: `${base(orgId)}/report/at-risk`, query: { format: "csv" } },
+      "text/csv",
       opts,
     );
   }

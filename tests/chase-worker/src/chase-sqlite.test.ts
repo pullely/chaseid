@@ -1,55 +1,18 @@
-import { DatabaseSync } from "node:sqlite";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { createSqlExecutor, type D1Binding } from "@saas/db/d1";
+import { createSqlExecutor } from "@saas/db/d1";
 import { createChaseRepository } from "@saas/db/chase";
-import { D1ApiAdapter } from "@saas/db/runner";
 import type { EnqueueNotificationRequest } from "@saas/contracts/notifications";
 import { FixtureCompaniesHouseProvider } from "@chase-worker/provider/fixture";
 import { sweepCompanies } from "@chase-worker/sync";
 import { sweepChases, windowCutoff, type ChaseDeps } from "@chase-worker/chase";
+import { d1Over, migratedDatabase } from "./sqlite-harness";
 
 // The CH2 "done when", run against a REAL SQLite engine over every migration:
 // a fixture-seeded org, the morning sweep, then the same sweep again the same
 // day, then a week later. D1 is SQLite, so SQL that runs here runs there.
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const MIGRATIONS_ROOT = resolve(__dirname, "../../..", "packages/db/src/migrations");
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = new Date("2026-09-23T09:00:00.000Z");
 const ORG = "5a1f0c1e-2b3d-4e5f-8a9b-0c1d2e3f4a5b";
-
-function d1Over(db: DatabaseSync): D1Binding {
-  return {
-    prepare(query: string) {
-      let bound: unknown[] = [];
-      const statement = {
-        bind(...values: unknown[]) {
-          bound = values;
-          return statement;
-        },
-        all<T>() {
-          const rows = db.prepare(query).all(...(bound as never[])) as T[];
-          return Promise.resolve({ results: rows, success: true });
-        },
-      };
-      return statement;
-    },
-  } as unknown as D1Binding;
-}
-
-function migratedDatabase(): DatabaseSync {
-  const db = new DatabaseSync(":memory:");
-  const dirs = readdirSync(MIGRATIONS_ROOT)
-    .filter((d) => existsSync(join(MIGRATIONS_ROOT, d, "up.sql")))
-    .sort();
-  for (const dir of dirs) {
-    const sql = readFileSync(join(MIGRATIONS_ROOT, dir, "up.sql"), "utf8");
-    for (const statement of D1ApiAdapter.splitStatements(sql)) db.exec(statement);
-  }
-  return db;
-}
 
 async function seededWorld() {
   const db = migratedDatabase();

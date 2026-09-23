@@ -60,6 +60,8 @@ const DEFAULT_TIER_ENTITLEMENTS: Record<string, number> = {
   // repo link. Catalog rows override these the moment plans configure them.
   "feature.integrations.github": 1,
   "limit.repo_links": 1,
+  // chaseid CH3: the client-register allowance, equal to the free plan's.
+  "limit.chase_companies": 10,
 };
 
 

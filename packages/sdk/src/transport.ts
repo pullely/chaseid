@@ -113,6 +113,31 @@ export class Transport {
     return this.performRequest<T>(input, opts);
   }
 
+  /**
+   * chaseid CH3: a non-JSON read — the at-risk report's `text/csv` rendering.
+   * Same auth, request-id and error decoding as `request<T>`; the body comes
+   * back as text instead of being unwrapped from the JSON envelope.
+   */
+  async requestText(input: PerformInput, accept: string, opts: RequestOptions = {}): Promise<string> {
+    const url = this.buildUrl(input.path, input.query);
+    const requestId = opts.requestId ?? generateRequestId();
+    const headers = new Headers();
+    for (const [k, v] of Object.entries(this.defaultHeaders)) headers.set(k, v);
+    if (this.auth) applyAuth(headers, this.auth);
+    headers.set("accept", accept);
+    headers.set("x-request-id", requestId);
+    if (opts.headers) {
+      for (const [k, v] of Object.entries(opts.headers)) headers.set(k, v);
+    }
+    const init: RequestInit = { method: input.method, headers };
+    if (opts.signal !== undefined) init.signal = opts.signal;
+    const response = await this.fetchImpl(url, init);
+    if (!response.ok) {
+      throw await decodeError(response, requestId);
+    }
+    return response.text();
+  }
+
   private async performRequest<T>(
     input: PerformInput,
     opts: RequestOptions,
