@@ -186,10 +186,10 @@ baseline is affected; stage and prod had no users or organizations when this
 was found, which is why nothing had surfaced it.
 
 **Done in CH2:** `appendEventWithAudit` rewritten as two portable statements
-and redeployed with `chase-worker`. **Open:** the two membership statements —
-without them no firm can create its organization or accept an invitation —
-and the stale copy of the events statement bundled into every other baseline
-worker until each is redeployed. CH3 ("the firm's roles") takes the
-membership fix and redeploys `membership-worker`. The fix belongs upstream in
-the baseline as well.
+and redeployed with `chase-worker`. **Done in CH3:** the two membership
+statements, redeployed with `membership-worker`. **Open:** the stale copy of
+the events statement bundled into the baseline workers this epic does not
+redeploy (projects, config, webhooks, identity, integrations, admin, events),
+and four `updated_at = now()` updates in the config and webhooks repositories
+(`no such function: now` on D1). The fix belongs upstream in the baseline.
 

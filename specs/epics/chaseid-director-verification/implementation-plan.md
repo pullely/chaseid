@@ -42,7 +42,7 @@ date.
 - `tests/chase-worker` is green in CI, covering the risk derivation, the CSV parser, the upsert idempotency and both provider implementations
 - the audit read surface shows `chase.company.imported` for the import
 
-## CH2 — the status board and the chase
+## CH2 — the status board and the chase ✅
 
 The first user-visible milestone. `GET …/chase/directors` joins people to their
 company and derives `daysUntilDue` and `risk` in `src/risk.ts`; `PATCH` sets a

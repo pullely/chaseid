@@ -7,7 +7,7 @@ the code departed from `design.md`.
 |---|---|---|
 | CH0 — the spec | ✅ shipped | [#8](https://github.com/pullely/chaseid/pull/8) |
 | CH1 — the register and the nightly sync | ✅ shipped | [#9](https://github.com/pullely/chaseid/pull/9) |
-| CH2 — the status board and the chase | | |
+| CH2 — the status board and the chase | ✅ shipped | [#10](https://github.com/pullely/chaseid/pull/10) |
 | CH3 — the at-risk report, the digest and the firm's roles | | |
 
 ## Departures from the design
@@ -75,3 +75,18 @@ the seven-day interval but never the verified/resigned/no-address checks, and
 answers `200` with `skippedReason` rather than an error when it sends nothing.
 A human who is both an officer and a PSC of one company is two rows and, given
 an address on both, receives two chases per step.
+
+### CH3 — the firm's front doors fixed on D1, and two workers redeployed by hand
+
+`membership.bootstrapOrganization` and the invitation-accept statement were the
+same kind of Postgres data-modifying CTE as the audit append (`CH-J`); on D1 no
+organization could be created and no invitation accepted. Both are now
+sequential statements with compensation on failure (the accept's guarded
+`UPDATE … WHERE status = 'pending' …` still admits one winner), tested against
+real SQLite. `membership-worker` and `policy-worker` are redeployed in the same
+landing by touching their `component.yaml`: a change to a shared package
+deploys only components whose own paths changed, so the `chase.read` /
+`chase.write` permissions CH1 added to `@saas/policy-engine` had never reached
+the live policy worker — every chase route answered the deny-by-default 404
+live until this landing.
+
