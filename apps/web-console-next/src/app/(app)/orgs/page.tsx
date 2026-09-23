@@ -16,6 +16,7 @@ import { SOLO_MODE } from "@/lib/solo-mode";
 import { useApiQuery, qk, usePrefetch } from "@/lib/query";
 import { useToast } from "@/components/ui/toast";
 import { wrap } from "@/lib/api";
+import { orgHomePath } from "@/lib/org-home";
 
 export default function OrgsPage() {
   const { client } = useSession();
@@ -148,7 +149,7 @@ export default function OrgsPage() {
           {orgs.data.map((o) => (
             <Link
               key={o.id}
-              href={`/orgs/${o.slug}/projects`}
+              href={orgHomePath(o.slug)}
               className="group"
               onMouseEnter={() =>
                 prefetch(qk.projects(o.id), () =>

@@ -74,7 +74,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-4">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/40 grid place-items-center text-primary-foreground font-bold">
-            S
+            C
           </div>
           <div>
             <div className="text-base font-semibold tracking-tight">{CONSOLE_TITLE}</div>

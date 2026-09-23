@@ -16,6 +16,8 @@ import { cn } from "@/lib/cn";
 import { useSession } from "@/lib/session";
 import { wrap } from "@/lib/api";
 import { useApiQuery, qk } from "@/lib/query";
+import { orgHomePath } from "@/lib/org-home";
+import { SOLO_MODE } from "@/lib/solo-mode";
 
 /**
  * URL-driven scope switcher.
@@ -78,7 +80,7 @@ export function ScopeSwitcher() {
             <>
               <DropdownMenuLabel>Organizations</DropdownMenuLabel>
               {orgs.map((o) => (
-                <DropdownMenuItem key={o.id} onSelect={() => router.push(`/orgs/${o.slug}/projects`)}>
+                <DropdownMenuItem key={o.id} onSelect={() => router.push(orgHomePath(o.slug))}>
                   <Building2 className="h-4 w-4 opacity-70" /> {o.name}
                   <span className="ml-auto text-[10px] text-muted-foreground">{o.slug}</span>
                 </DropdownMenuItem>
@@ -90,7 +92,9 @@ export function ScopeSwitcher() {
         </Crumb>
       </div>
 
-      {orgSlug && (
+      {/* Projects are suppressed under Solo, so the picker would only ever read
+          "Select project" and lead to an empty page. */}
+      {orgSlug && !SOLO_MODE && (
         <div className="hidden min-w-0 items-center md:flex">
           {/* Separator only needed to the org crumb, which is mobile-only. */}
           <Slash className="mx-0.5 h-3 w-3 text-muted-foreground/60 md:hidden" />
