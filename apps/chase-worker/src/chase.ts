@@ -17,6 +17,7 @@ import type { EnqueueNotificationRequest } from "@saas/contracts/notifications";
 import { appendChaseEvent } from "./audit.js";
 import type { Env } from "./env.js";
 import { companyPublicId, personPublicId } from "./ids.js";
+import { recipientToken } from "./people.js";
 import { daysUntilDue } from "./risk.js";
 import type { ActorContext } from "./router.js";
 
@@ -67,7 +68,9 @@ export function templateForStep(step: number): string {
  *
  * A re-run on the same day is a no-op by construction: the step it would send
  * is the step already recorded, and its interval has not elapsed. The
- * notifications idempotency key (`chase:<prs>:<step>`) is the second lock.
+ * notifications idempotency key (`chase:<cmp>:<recipient>:<step>`, see
+ * `people.ts`) is the second lock, and the one that sends a human on two
+ * roles one email rather than two.
  */
 export function decideChase(
   person: Pick<
@@ -147,7 +150,15 @@ export async function chaseOne(
         step: decision.step,
       },
       recipient: { channel: "email", address: person.contactEmail!.toLowerCase() },
-      idempotencyKey: buildIdempotencyKey("chase", prs, String(decision.step)),
+      // Keyed on the HUMAN, not the row (CL1): a director who is also a PSC,
+      // with one address, is two rows but one email per step. Each row still
+      // records its own chase_messages entry and advances its own step.
+      idempotencyKey: buildIdempotencyKey(
+        "chase",
+        companyPublicId(person.companyId),
+        recipientToken(person.name, person.contactEmail!),
+        String(decision.step),
+      ),
       correlationId: requestId,
     },
     requestId,

@@ -95,6 +95,7 @@ function Inner({ orgId, orgSlug }: { orgId: string; orgSlug: string }) {
                 <TableHead>Company</TableHead>
                 <TableHead>Statement due</TableHead>
                 <TableHead>Unverified</TableHead>
+                <TableHead>Unknown</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -110,7 +111,11 @@ function Inner({ orgId, orgSlug }: { orgId: string; orgSlug: string }) {
                   </TableCell>
                   <TableCell>
                     <div>{row.unverifiedCount}</div>
-                    <div className="text-xs text-muted-foreground">{row.unverifiedNames.join(", ")}</div>
+                    <div className="text-xs text-muted-foreground">{row.unverifiedNames.join("; ")}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div>{row.unknownCount}</div>
+                    <div className="text-xs text-muted-foreground">{row.unknownNames.join("; ")}</div>
                   </TableCell>
                 </TableRow>
               ))}

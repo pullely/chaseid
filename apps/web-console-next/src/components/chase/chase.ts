@@ -3,6 +3,7 @@
  * the CSV parsing and the badge mapping are unit-testable on their own.
  */
 import type {
+  ChaseCompanyStatus,
   ChaseImportCompany,
   ChaseRisk,
   ChaseVerificationState,
@@ -21,6 +22,32 @@ export const RISK_VARIANT: Record<ChaseRisk, BadgeVariant> = {
   due_soon: "warning",
   ok: "secondary",
 };
+
+/**
+ * The risk badge a row shows. Display-only refinement of the wire's `risk`
+ * (CL1): an at-risk filing whose date has already passed reads "Overdue", and
+ * a company that is dissolved or in liquidation shows that instead of a risk
+ * it no longer has.
+ */
+export function riskBadge(
+  risk: ChaseRisk,
+  daysUntilDue: number | null,
+  companyStatus?: ChaseCompanyStatus,
+): { label: string; variant: BadgeVariant } {
+  if (companyStatus === "dissolved") return { label: "Dissolved", variant: "outline" };
+  if (companyStatus === "liquidation") return { label: "Liquidation", variant: "outline" };
+  if (risk === "at_risk" && daysUntilDue !== null && daysUntilDue < 0) {
+    return { label: "Overdue", variant: "destructive" };
+  }
+  return { label: RISK_LABEL[risk], variant: RISK_VARIANT[risk] };
+}
+
+/** "2 · 1 unverified · 1 unknown" — persons, not rows (CL1). */
+export function formatPeopleCounts(people: number, unverified: number, unknown: number): { total: string; detail: string } {
+  const parts = [`${unverified} unverified`];
+  if (unknown > 0) parts.push(`${unknown} unknown`);
+  return { total: String(people), detail: parts.join(" · ") };
+}
 
 export const STATE_LABEL: Record<ChaseVerificationState, string> = {
   verified: "Verified",

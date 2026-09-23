@@ -25,12 +25,11 @@ import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
 import { wrap } from "@/lib/api";
 import {
-  RISK_LABEL,
-  RISK_VARIANT,
   STATE_LABEL,
   STATE_VARIANT,
   STEP_LABEL,
   formatDaysUntilDue,
+  riskBadge,
 } from "@/components/chase/chase";
 import type { ChaseRisk, ChaseVerificationState, PublicChaseDirector } from "@saas/contracts/chase";
 
@@ -211,7 +210,7 @@ function Inner({ orgId }: { orgId: string }) {
                     <Badge variant={STATE_VARIANT[row.verificationState]}>{STATE_LABEL[row.verificationState]}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={RISK_VARIANT[row.risk]}>{RISK_LABEL[row.risk]}</Badge>
+                    <Badge variant={riskBadge(row.risk, row.daysUntilDue).variant}>{riskBadge(row.risk, row.daysUntilDue).label}</Badge>
                   </TableCell>
                   <TableCell className="text-xs">
                     <div>{STEP_LABEL[row.chaseStep] ?? `Step ${row.chaseStep}`}</div>

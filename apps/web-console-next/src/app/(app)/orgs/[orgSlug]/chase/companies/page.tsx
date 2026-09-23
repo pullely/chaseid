@@ -24,7 +24,7 @@ import { PreconditionInsight } from "@/components/precondition/insight";
 import { useSession } from "@/lib/session";
 import { useApiQuery, qk } from "@/lib/query";
 import { wrap, type ApiErrorBody } from "@/lib/api";
-import { RISK_LABEL, RISK_VARIANT, formatDaysUntilDue, parseRegisterCsv } from "@/components/chase/chase";
+import { formatDaysUntilDue, formatPeopleCounts, parseRegisterCsv, riskBadge } from "@/components/chase/chase";
 import type { PublicChaseCompany } from "@saas/contracts/chase";
 
 export default function CompaniesPage() {
@@ -193,10 +193,13 @@ function Inner({ orgId }: { orgId: string }) {
                     <div className="text-xs text-muted-foreground">{formatDaysUntilDue(c.daysUntilDue)}</div>
                   </TableCell>
                   <TableCell>
-                    {c.peopleCount} <span className="text-xs text-muted-foreground">({c.unverifiedCount} unverified)</span>
+                    {c.peopleCount}{" "}
+                    <span className="text-xs text-muted-foreground">
+                      ({formatPeopleCounts(c.peopleCount, c.unverifiedCount, c.unknownCount).detail})
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={RISK_VARIANT[c.risk]}>{RISK_LABEL[c.risk]}</Badge>
+                    <Badge variant={riskBadge(c.risk, c.daysUntilDue, c.companyStatus).variant}>{riskBadge(c.risk, c.daysUntilDue, c.companyStatus).label}</Badge>
                   </TableCell>
                   <TableCell className="text-xs">
                     <div>{c.lastSyncState}</div>

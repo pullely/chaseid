@@ -53,7 +53,8 @@ export function digestLines(rows: ChaseAtRiskCompanyRow[]): string {
   const lines = rows.slice(0, DIGEST_LINES).map((row) => {
     const when =
       row.daysUntilDue === null ? "date unknown" : row.daysUntilDue < 0 ? `${-row.daysUntilDue}d overdue` : `due in ${row.daysUntilDue}d`;
-    return `${row.companyName || row.companyNumber} (${row.companyNumber}) — ${when}, ${row.unverifiedCount} unverified`;
+    const unknown = row.unknownCount > 0 ? `, ${row.unknownCount} unknown` : "";
+    return `${row.companyName || row.companyNumber} (${row.companyNumber}) — ${when}, ${row.unverifiedCount} unverified${unknown}`;
   });
   if (rows.length > DIGEST_LINES) lines.push(`…and ${rows.length - DIGEST_LINES} more`);
   return lines.join("\n");

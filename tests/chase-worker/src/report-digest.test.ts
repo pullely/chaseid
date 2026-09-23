@@ -11,6 +11,8 @@ const ROW: ChaseAtRiskCompanyRow = {
   daysUntilDue: 12,
   unverifiedCount: 2,
   unverifiedNames: ["=HYPERLINK(\"http://x\")", 'Ann "AJ" Smith'],
+  unknownCount: 0,
+  unknownNames: [],
 };
 
 describe("the at-risk CSV", () => {
