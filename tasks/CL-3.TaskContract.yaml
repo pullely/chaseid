@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-3
+spec:
+  goal: A person's risk badge on the board is their company's risk.
+  affects:
+    - default/chaseid/chase-worker
+    - chase-worker
+    - default/chaseid/chase-worker-tests
+    - chase-worker-tests
+    - default/chaseid/db
+    - db
+    - default/chaseid/db-tests
+    - db-tests
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - a verified person on an at-risk company badges At risk on the board
+    - the board's risk filter and row badges agree, asserted against real SQLite
+  gates: []

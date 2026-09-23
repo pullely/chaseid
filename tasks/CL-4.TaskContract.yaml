@@ -1,0 +1,21 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-4
+spec:
+  goal: A new firm reaches a populated status board in one flow, and the import dialog confirms what it did.
+  affects:
+    - default/chaseid/web-console-next
+    - web-console-next
+    - default/chaseid/web-console-next-tests
+    - web-console-next-tests
+    - default/chaseid/sdk
+    - sdk
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - the org root redirects to the status board
+    - onboarding sets the firm name and runs a first import
+    - the import dialog takes a file, closes on success with an imported/updated/skipped/matched summary, and the rows show without a reload
+    - the fixture-data banner is legible and the project picker is hidden
+  gates: []

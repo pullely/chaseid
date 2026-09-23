@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CL-1
+spec:
+  goal: The launch-readiness epic's doc set is on main and attached to the epic in Orunbase.
+  affects:
+    - specs/epics/chaseid-launch-readiness
+    - tasks
+  doneWhen:
+    - the five documents are on main under specs/epics/chaseid-launch-readiness/
+    - orun spec list --epic chaseid-launch-readiness shows them
+    - the epic and its five milestones exist in the workspace's task plane
+  gates: []
