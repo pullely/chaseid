@@ -1,0 +1,26 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CH-4
+spec:
+  goal: A firm can create its organization and invite its staff on the live D1 stack, and the firm's roles decide who may read and who may change the chase register.
+  affects:
+    - default/chaseid/db
+    - default/chaseid/db-tests
+    - default/chaseid/membership-worker
+    - default/chaseid/membership-worker-tests
+    - default/chaseid/policy-engine-tests
+    - default/chaseid/policy-worker
+    - db
+    - db-tests
+    - membership-worker
+    - membership-worker-tests
+    - policy-engine-tests
+    - policy-worker
+    - specs/epics/chaseid-director-verification
+    - tasks
+  doneWhen:
+    - membership bootstrapOrganization and acceptInvitation run as D1-compatible statements, asserted against real SQLite in tests/db
+    - membership-worker and policy-worker are redeployed on stage and prod after the merge, so the live policy engine knows chase.read and chase.write
+    - a viewer is granted chase.read and refused chase.write, asserted in tests/policy-engine
+  gates: []

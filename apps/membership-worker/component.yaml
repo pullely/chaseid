@@ -1,3 +1,5 @@
+# chaseid CH3: redeployed deliberately — it bundles @saas/db, whose bootstrapOrganization, acceptInvitation and
+# appendEventWithAudit were Postgres CTEs D1 could not parse (risks CH-J).
 apiVersion: sourceplane.io/v1
 kind: Component
 metadata:

@@ -323,6 +323,93 @@ describe("the rewritten queries, against a real SQLite engine", () => {
     expect(new Date(row.previous_secret_expires_at).getTime()).toBeGreaterThan(Date.now());
   });
 
+  it("bootstraps an organization and accepts an invitation into it — the firm's two front doors", async () => {
+    // chaseid CH3: both were single Postgres data-modifying CTEs with
+    // row_to_json, which SQLite cannot parse — no org could be created on D1.
+    const repo = createMembershipRepository(executor);
+    const orgId = asUuid("77777777-7777-4777-8777-777777777777");
+    const now = new Date("2026-09-23T09:00:00.000Z");
+    const boot = await repo.bootstrapOrganization({
+      org: { id: orgId, name: "Harbourside Practice", slug: "harbourside", slugLower: "harbourside", createdAt: now },
+      member: { id: "11111111-aaaa-4aaa-8aaa-111111111111", orgId, subjectId: "usr_owner", subjectType: "user", createdAt: now },
+      roleAssignment: {
+        id: "22222222-aaaa-4aaa-8aaa-222222222222",
+        orgId,
+        subjectId: "usr_owner",
+        subjectType: "user",
+        role: "owner",
+        scopeKind: "organization",
+        createdAt: now,
+      },
+    });
+    expect(boot.ok).toBe(true);
+    if (boot.ok) {
+      expect(boot.value.org.slug).toBe("harbourside");
+      expect(boot.value.roleAssignment.role).toBe("owner");
+    }
+
+    // Same slug again: a conflict, and nothing half-written left behind.
+    const again = await repo.bootstrapOrganization({
+      org: { id: asUuid("77777777-7777-4777-8777-777777777778"), name: "Dup", slug: "harbourside", slugLower: "harbourside", createdAt: now },
+      member: { id: "11111111-aaaa-4aaa-8aaa-111111111112", orgId: asUuid("77777777-7777-4777-8777-777777777778"), subjectId: "usr_x", subjectType: "user", createdAt: now },
+      roleAssignment: {
+        id: "22222222-aaaa-4aaa-8aaa-222222222223",
+        orgId: asUuid("77777777-7777-4777-8777-777777777778"),
+        subjectId: "usr_x",
+        subjectType: "user",
+        role: "owner",
+        scopeKind: "organization",
+        createdAt: now,
+      },
+    });
+    expect(again.ok).toBe(false);
+    const orgs = db.prepare("SELECT count(*) AS n FROM membership_organizations").get() as { n: number };
+    expect(Number(orgs.n)).toBe(1);
+
+    const invited = await repo.createInvitation({
+      id: "33333333-aaaa-4aaa-8aaa-333333333333",
+      orgId,
+      email: "Reviewer@Example.com",
+      emailLower: "reviewer@example.com",
+      role: "viewer",
+      tokenHash: "hash-1",
+      invitedBy: "usr_owner",
+      expiresAt: new Date("2026-10-23T09:00:00.000Z"),
+      createdAt: now,
+    });
+    expect(invited.ok).toBe(true);
+
+    const accepted = await repo.acceptInvitation({
+      tokenHash: "hash-1",
+      orgId,
+      emailLower: "reviewer@example.com",
+      memberId: "44444444-aaaa-4aaa-8aaa-444444444444",
+      roleAssignmentId: "55555555-aaaa-4aaa-8aaa-555555555555",
+      subjectId: "usr_reviewer",
+      subjectType: "user",
+      acceptedAt: now,
+    });
+    expect(accepted.ok).toBe(true);
+    if (accepted.ok) {
+      expect(accepted.value.invitation.status).toBe("accepted");
+      expect(accepted.value.roleAssignment.role).toBe("viewer");
+      expect(accepted.value.member.orgId).toBe(orgId);
+    }
+
+    // A second accept of the same token finds nothing pending.
+    const replay = await repo.acceptInvitation({
+      tokenHash: "hash-1",
+      orgId,
+      emailLower: "reviewer@example.com",
+      memberId: "44444444-aaaa-4aaa-8aaa-444444444445",
+      roleAssignmentId: "55555555-aaaa-4aaa-8aaa-555555555556",
+      subjectId: "usr_reviewer",
+      subjectType: "user",
+      acceptedAt: now,
+    });
+    expect(replay.ok).toBe(false);
+  });
+
   it("appends an event WITH its audit entry — the path every audited write takes", async () => {
     // chaseid CH2: this was a Postgres data-modifying CTE with row_to_json,
     // which SQLite cannot parse, so every audited write on D1 failed.

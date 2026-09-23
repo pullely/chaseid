@@ -1,3 +1,5 @@
+# chaseid CH3: redeployed deliberately — it bundles @saas/policy-engine, which gained chase.read / chase.write in
+# CH1 — a package change does not redeploy the workers that bundle it.
 apiVersion: sourceplane.io/v1
 kind: Component
 metadata:
