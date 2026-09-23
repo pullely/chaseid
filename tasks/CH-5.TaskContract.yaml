@@ -1,0 +1,44 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: CH-5
+spec:
+  goal: A firm can download this month's at-risk filings as CSV, its members get a Monday digest of them, and importing past the plan's company allowance is refused before any row is written.
+  affects:
+    - default/chaseid/chase-worker
+    - default/chaseid/chase-worker-tests
+    - default/chaseid/api-edge
+    - default/chaseid/api-edge-tests
+    - default/chaseid/contracts
+    - default/chaseid/db
+    - default/chaseid/db-tests
+    - default/chaseid/billing-worker
+    - default/chaseid/billing-worker-tests
+    - default/chaseid/notifications-worker
+    - default/chaseid/notifications-worker-tests
+    - default/chaseid/sdk
+    - default/chaseid/web-console-next
+    - default/chaseid/web-console-next-tests
+    - chase-worker
+    - chase-worker-tests
+    - api-edge
+    - api-edge-tests
+    - contracts
+    - db
+    - db-tests
+    - billing-worker
+    - billing-worker-tests
+    - notifications-worker
+    - notifications-worker-tests
+    - sdk
+    - web-console-next
+    - web-console-next-tests
+    - specs/epics/chaseid-director-verification
+    - tasks
+  doneWhen:
+    - GET /v1/organizations/{org}/chase/report/at-risk?format=csv answers text/csv with content-disposition attachment, and its rows match the JSON rendering of the same route
+    - a viewer gets 404 from POST …/chase/companies/import and 200 from the report
+    - the Monday digest enqueues one chase.firm_digest per member of an org with at-risk filings and none for an org with none
+    - importing past limit.chase_companies is refused with the baseline's precondition_failed before any row is written, and companies_under_management appears on GET …/usage
+    - the report page renders this month's at-risk filings and its Download CSV button returns the file
+  gates: []
