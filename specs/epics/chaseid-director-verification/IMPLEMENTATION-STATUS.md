@@ -8,7 +8,7 @@ the code departed from `design.md`.
 | CH0 — the spec | ✅ shipped | [#8](https://github.com/pullely/chaseid/pull/8) |
 | CH1 — the register and the nightly sync | ✅ shipped | [#9](https://github.com/pullely/chaseid/pull/9) |
 | CH2 — the status board and the chase | ✅ shipped | [#10](https://github.com/pullely/chaseid/pull/10) |
-| CH3 — the at-risk report, the digest and the firm's roles | | |
+| CH3 — the at-risk report, the digest and the firm's roles | ✅ shipped | [#11](https://github.com/pullely/chaseid/pull/11) (org, invitations and roles on D1), [#12](https://github.com/pullely/chaseid/pull/12) (report, digest, quota) |
 
 ## Departures from the design
 
@@ -124,4 +124,16 @@ CH3 made them live (see the redeploy above) and pinned the matrix in
 `tests/policy-engine/src/chase-roles.test.ts`. The baseline's `viewer` is the
 reviewer: board, chase log and report, and a 404 on import, remove, mark-verified
 and chase.
+
+## What was verified live, and what was not
+
+Verified on the live stack: `/health` on stage and prod; the four `chase_*`
+tables present on both D1 databases; each merge's deploy run; and, read-only
+against stage D1, that the baseline's CTE SQL fails and its replacement parses.
+Not exercised end to end live: the authenticated chase routes. Signing in takes a
+magic-link email to a real inbox, and no test user or inbox was available to this
+build, so the "on stage and prod" parts of each milestone's done-when list are
+covered by route-level tests on real SQLite with the real policy engine
+(`tests/chase-worker/src/ch3-routes.test.ts`, `chase-sqlite.test.ts`), not by
+calls against the deployed workers. The first real sign-up is the first live test.
 
