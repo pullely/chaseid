@@ -90,3 +90,38 @@ deploys only components whose own paths changed, so the `chase.read` /
 the live policy worker — every chase route answered the deny-by-default 404
 live until this landing.
 
+### CH3 — the plan allowance maps onto the baseline's plan codes
+
+**Design:** £29 / £79 / £199 tiers at 100 / 500 / unlimited companies.
+**Built:** a `limit.chase_companies` entitlement on the baseline's existing plan
+catalog — `pro` 100, `business` 500, `enterprise` unlimited, and `free` 10 (plus
+the same 10 in billing-worker's implicit default tier) so a firm can try the
+product. The catalog's display prices are the baseline's and were not changed:
+prices belong to the payment provider's products, which this account has not
+configured. Only NEW company numbers count against the allowance; a re-import is
+free. The refusal is the baseline's `precondition_failed` (412) with
+`reason: "limit_reached"`, returned before any row is written.
+
+### CH3 — metering and the digest read other contexts' tables directly
+
+`companies_under_management` is written through `@saas/db`'s metering
+repository from chase-worker, not through metering-worker's HTTP route: that
+route authorizes `organization.metering.write`, which a firm's staff do not hold
+and the cron's system actor cannot. It is a daily gauge — one reading per org per
+UTC day, keyed `companies_under_management:<date>` — written by the nightly sweep
+or, on a day without one, by an import. The Monday digest likewise reads the
+org's active user members and their addresses through the membership and
+identity repositories, because neither worker exposes an internal "members with
+addresses" route. Both are reads (or an idempotent insert) through the baseline's
+own repositories on the shared D1 database.
+
+### CH3 — no new permissions; the roles were already there
+
+The design spoke of `chaseid.*` permissions and a "reviewer" role. As built,
+CH1 registered `chase.read` and `chase.write` on the baseline's existing roles
+(owner/admin/builder read and write, viewer reads, billing_admin neither), and
+CH3 made them live (see the redeploy above) and pinned the matrix in
+`tests/policy-engine/src/chase-roles.test.ts`. The baseline's `viewer` is the
+reviewer: board, chase log and report, and a 404 on import, remove, mark-verified
+and chase.
+
