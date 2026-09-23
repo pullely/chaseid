@@ -62,6 +62,7 @@ export function buildNavSections(scope: NavScope, soloMode: boolean = SOLO_MODE)
         { href: `${orgBase}/chase/directors`, label: "Status board", icon: "ShieldCheck" },
         { href: `${orgBase}/chase/companies`, label: "Companies", icon: "Building2" },
         { href: `${orgBase}/chase/messages`, label: "Chase log", icon: "ScrollText" },
+        { href: `${orgBase}/chase/report`, label: "At-risk report", icon: "Gauge" },
       ],
     });
 

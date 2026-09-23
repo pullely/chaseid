@@ -259,6 +259,43 @@ function chaseRenderer(step: keyof typeof CHASE_STEPS): TemplateRenderer {
   };
 }
 
+/**
+ * CH3 — the Monday firm digest, to every member of a firm with filings at
+ * risk. Internal to the firm, so unlike the chases it may name companies and
+ * people; it still carries no link and no token — the firm opens Chaseid the
+ * way it always does.
+ */
+const renderFirmDigest: TemplateRenderer = (data, opts) => {
+  const brand = opts.brandName ?? "";
+  const name = str(data, "recipientName");
+  const atRisk = Number(data.companiesAtRisk ?? 0);
+  const unverified = Number(data.unverifiedPeople ?? 0);
+  const chased = Number(data.chasesSentLastWeek ?? 0);
+  const week = str(data, "weekOf");
+  const summary = str(data, "summary");
+  const lines = summary ? summary.split("\n") : [];
+
+  const subject = `${atRisk} ${atRisk === 1 ? "filing" : "filings"} at risk this month${brand ? ` — ${brand}` : ""}`;
+  const lead = `${atRisk} client ${atRisk === 1 ? "company files" : "companies file"} a confirmation statement within 30 days with ${unverified} ${unverified === 1 ? "person" : "people"} still unverified. ${chased} ${chased === 1 ? "chase was" : "chases were"} sent in the last week.`;
+  const greeting = name ? `Hello ${name},` : "Hello,";
+  const close = "Open the status board to chase or mark people verified.";
+
+  const text = [greeting, lead, ...(lines.length ? [lines.join("\n")] : []), close].join("\n\n");
+  const html = htmlShell(
+    escapeHtml(week ? `Week of ${week}: filings at risk` : "Filings at risk"),
+    [
+      `<p style="margin:0 0 16px;font-size:14px;">${escapeHtml(greeting)}</p>`,
+      `<p style="margin:0 0 16px;font-size:14px;">${escapeHtml(lead)}</p>`,
+      lines.length
+        ? `<ul style="margin:0 0 16px;padding-left:20px;font-size:13px;">${lines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>`
+        : "",
+      `<p style="margin:0;font-size:13px;color:#6b6b80;">${escapeHtml(close)}</p>`,
+    ].join(""),
+    escapeHtml(brand ? `Sent by ${brand}` : "This is an automated email."),
+  );
+  return { subject, html, text };
+};
+
 const TEMPLATES: Record<string, TemplateRenderer> = {
   "auth.magic_link": renderMagicLink,
   "invitation.created": renderInvitationCreated,
@@ -266,6 +303,7 @@ const TEMPLATES: Record<string, TemplateRenderer> = {
   "chase.first_notice": chaseRenderer("first_notice"),
   "chase.reminder": chaseRenderer("reminder"),
   "chase.escalation": chaseRenderer("escalation"),
+  "chase.firm_digest": renderFirmDigest,
 };
 
 /**

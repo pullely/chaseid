@@ -2,6 +2,7 @@ import {
   formatDaysUntilDue,
   normaliseCompanyNumber,
   parseRegisterCsv,
+  reportFileName,
   RISK_VARIANT,
 } from "@web-console-next/components/chase/chase";
 import { buildNavSections } from "@web-console-next/components/shell/nav-items";
@@ -56,6 +57,7 @@ describe("Chaseid console helpers (CH2)", () => {
         "/orgs/acme/chase/directors",
         "/orgs/acme/chase/companies",
         "/orgs/acme/chase/messages",
+        "/orgs/acme/chase/report",
       ]);
     }
   });
@@ -63,5 +65,9 @@ describe("Chaseid console helpers (CH2)", () => {
   it("gives each board filter its own cache entry under one invalidation prefix", () => {
     expect(qk.chaseDirectors("org_1", "unverified:all")).not.toEqual(qk.chaseDirectors("org_1", "all:at_risk"));
     expect(qk.chaseDirectors("org_1", "x").slice(0, 2)).toEqual(["chaseDirectors", "org_1"]);
+  });
+
+  it("names the downloaded report after the firm and the day", () => {
+    expect(reportFileName("Acme/../x", new Date("2026-09-23T10:00:00Z"))).toBe("chaseid-at-risk-acmex-2026-09-23.csv");
   });
 });

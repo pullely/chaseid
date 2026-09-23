@@ -25,9 +25,13 @@ const CHASE_ROUTES: Array<{ re: RegExp; methods: string[] }> = [
   { re: /^\/v1\/organizations\/[^/]+\/chase\/directors\/[^/]+$/, methods: ["PATCH"] },
   { re: /^\/v1\/organizations\/[^/]+\/chase\/directors$/, methods: ["GET"] },
   { re: /^\/v1\/organizations\/[^/]+\/chase\/messages$/, methods: ["GET"] },
+  // CH3 — the at-risk report; `accept` is forwarded so `Accept: text/csv`
+  // selects the CSV rendering as well as `?format=csv`.
+  { re: /^\/v1\/organizations\/[^/]+\/chase\/report\/at-risk$/, methods: ["GET"] },
 ];
 
 const FORWARDED_HEADERS = [
+  "accept",
   "content-type",
   "x-request-id",
   "traceparent",

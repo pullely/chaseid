@@ -67,6 +67,11 @@ export const DEFAULT_PLAN_CODE = "free";
  * wired. `enterprise` is sold via "contact sales", so it has no self-serve price
  * (`billingInterval: "none"`, `priceAmountCents: 0`) and no provider product.
  * For quantity limits, `enabled: true` + `limitValue: null` means unlimited.
+ *
+ * chaseid CH3: `limit.chase_companies` is the client-register allowance the
+ * product is sold on — 100 / 500 / unlimited on the paid tiers (the brief's
+ * £29 / £79 / £199), and 10 on `free` so a firm can try it. chase-worker checks
+ * it before an import writes anything.
  */
 export const PLAN_CATALOG: PlanDefinition[] = [
   {
@@ -84,6 +89,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
       { entitlementKey: "feature.custom_domains", valueType: "boolean", enabled: false, limitValue: null },
       { entitlementKey: "feature.multi_org", valueType: "boolean", enabled: false, limitValue: null },
       { entitlementKey: "limit.organizations", valueType: "quantity", enabled: true, limitValue: 1 },
+      { entitlementKey: "limit.chase_companies", valueType: "quantity", enabled: true, limitValue: 10 },
     ],
   },
   {
@@ -101,6 +107,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
       { entitlementKey: "feature.custom_domains", valueType: "boolean", enabled: true, limitValue: null },
       { entitlementKey: "feature.multi_org", valueType: "boolean", enabled: false, limitValue: null },
       { entitlementKey: "limit.organizations", valueType: "quantity", enabled: true, limitValue: 1 },
+      { entitlementKey: "limit.chase_companies", valueType: "quantity", enabled: true, limitValue: 100 },
     ],
   },
   {
@@ -118,6 +125,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
       { entitlementKey: "feature.custom_domains", valueType: "boolean", enabled: true, limitValue: null },
       { entitlementKey: "feature.multi_org", valueType: "boolean", enabled: true, limitValue: null },
       { entitlementKey: "limit.organizations", valueType: "quantity", enabled: true, limitValue: 5 },
+      { entitlementKey: "limit.chase_companies", valueType: "quantity", enabled: true, limitValue: 500 },
     ],
   },
   {
@@ -135,6 +143,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
       { entitlementKey: "feature.custom_domains", valueType: "boolean", enabled: true, limitValue: null },
       { entitlementKey: "feature.multi_org", valueType: "boolean", enabled: true, limitValue: null },
       { entitlementKey: "limit.organizations", valueType: "quantity", enabled: true, limitValue: null },
+      { entitlementKey: "limit.chase_companies", valueType: "quantity", enabled: true, limitValue: null },
     ],
   },
 ];

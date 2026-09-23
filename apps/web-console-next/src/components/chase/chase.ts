@@ -83,3 +83,9 @@ export function normaliseCompanyNumber(value: string): string | null {
   if (!/^[A-Z0-9]{1,8}$/.test(cleaned)) return null;
   return /^\d+$/.test(cleaned) ? cleaned.padStart(8, "0") : cleaned;
 }
+
+/** The Download CSV file name: firm slug and the day it was generated. */
+export function reportFileName(orgSlug: string, now: Date): string {
+  const safe = orgSlug.replace(/[^a-z0-9-]/gi, "").toLowerCase() || "firm";
+  return `chaseid-at-risk-${safe}-${now.toISOString().slice(0, 10)}.csv`;
+}

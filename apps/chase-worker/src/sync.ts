@@ -2,6 +2,7 @@ import type { ChaseCompany, ChaseRepository, ProviderKind, SyncTrigger } from "@
 import { createChaseRepository } from "@saas/db/chase";
 import { createSqlExecutor } from "@saas/db/d1";
 import type { Env } from "./env.js";
+import { recordCompaniesGauge } from "./metering.js";
 import { resolveProvider } from "./provider/index.js";
 import { ProviderNotFoundError, type CompaniesHouseProvider } from "./provider/types.js";
 
@@ -190,6 +191,8 @@ export async function runNightlySweep(env: Env): Promise<void> {
 
     for (const [orgId, companies] of byOrg) {
       await sweepCompanies(repo, provider, orgId, companies, "cron", env.CHASE_CACHE, now);
+      // CH3: the day's companies_under_management reading (see metering.ts).
+      await recordCompaniesGauge(executor, repo, orgId, now);
     }
   } finally {
     await executor.dispose();
