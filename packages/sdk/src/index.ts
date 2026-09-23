@@ -10,6 +10,7 @@
 // callers (custom retry middleware, alt resource fan-out) but the typical
 // integration path is the `Chaseid` class.
 
+import { ChaseClient } from "./chase.js";
 import { ApiKeysClient } from "./apiKeys.js";
 import { AuthClient } from "./auth.js";
 import { IntegrationsClient } from "./integrations.js";
@@ -41,6 +42,8 @@ export class Chaseid {
   readonly notifications: NotificationsClient;
   readonly auth: AuthClient;
   readonly integrations: IntegrationsClient;
+  /** Chaseid — the client register and its verification chase. */
+  readonly chase: ChaseClient;
   /** Underlying HTTP transport. Exposed for advanced extension. */
   readonly transport: Transport;
 
@@ -60,6 +63,7 @@ export class Chaseid {
     this.notifications = new NotificationsClient(this.transport);
     this.auth = new AuthClient(this.transport);
     this.integrations = new IntegrationsClient(this.transport);
+    this.chase = new ChaseClient(this.transport);
   }
 }
 
@@ -98,6 +102,7 @@ export { ConfigClient, type ConfigScope } from "./config.js";
 export { NotificationsClient } from "./notifications.js";
 export { AuthClient } from "./auth.js";
 export { IntegrationsClient } from "./integrations.js";
+export { ChaseClient, type ListChaseDirectorsQuery, type ChasePageQuery } from "./chase.js";
 
 // Transport surface.
 export {
