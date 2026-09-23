@@ -5,7 +5,7 @@ import {
 } from "@saas/contracts/chase";
 import type { ChaseMessage, ChasePersonWithCompany, ChaseRepository } from "@saas/db/chase";
 import { createChaseRepository } from "@saas/db/chase";
-import { createSqlExecutor, type SqlExecutor } from "@saas/db/d1";
+import { createSqlExecutor, type SqlExecutor, type TransactionalSqlExecutor } from "@saas/db/d1";
 import { createEventsRepository } from "@saas/db/events";
 import {
   buildIdempotencyKey,
@@ -233,7 +233,11 @@ export async function sweepChases(
 }
 
 /** The production deps, over one executor. */
-export function chaseDepsFor(env: Env & NotificationsEnvBinding, executor: SqlExecutor, actor: ActorContext): ChaseDeps {
+export function chaseDepsFor(
+  env: Env & NotificationsEnvBinding,
+  executor: TransactionalSqlExecutor,
+  actor: ActorContext,
+): ChaseDeps {
   return {
     repo: createChaseRepository(executor),
     transact: (fn) => executor.transaction((tx) => fn(createChaseRepository(tx), tx)),
